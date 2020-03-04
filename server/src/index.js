@@ -54,8 +54,9 @@ io.use(socketIOSession(session, {
 }));
 // #endregion
 
-//// Bind REST controllers to /api/*
-//const auth = require('./controllers/auth.controller.js');
+// Bind REST controllers to /api/*
+const auth = require('./controllers/auth.controller.js');
+
 //const booking = require('./controllers/booking.controller.js');
 //const admin = require('./controllers/admin.controller.js');
 //
@@ -94,9 +95,4 @@ io.use(socketIOSession(session, {
 // Start server
 httpServer.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
-});
-
-// create a GET route
-app.get('/express_backend', (req, res) => {
-    res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' });
 });
