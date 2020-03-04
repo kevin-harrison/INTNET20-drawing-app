@@ -41,40 +41,44 @@ export default class RoomList extends Component {
   };
   render() {
     return (
-    <div className="center" style={this.style.roomBox}>
-      <div style={this.style.roomHeader}>ROOMS</div>
-      {this.state.rooms.map(room => (
-      <Room key={room.id} name={room.name} available={room.available} />
-      ))}
-    </div>
-    )
+      <div className="center">
+        <div style={this.style.roomHeader}>ROOMS</div>
+        <div style={this.style.roomBox}>
+          {this.state.rooms.map(room => (
+            <Room key={room.id} name={room.name} available={room.available} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   style = {
     roomBox: {
-      height: "80vh",
+      height: "70vh",
       width: "80vw",
       border: "1px solid #333",
-      borderRadius: "10px",
+      borderBottomLeftRadius: "10px",
+      borderBottomRightRadius: "10px",
       background: "linear-gradient(-45deg, #56CCF2, #2F80ED)",
       color: "aliceblue",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
+      overflowX: "auto"
     },
     roomHeader: {
-      height: "60px",
-      borderTopLeftRadius: "inherit",
-      borderTopRightRadius: "inherit",
+      height: "50px",
+      borderTopLeftRadius: "10px",
+      borderTopRightRadius: "10px",
       borderBottom: "2px solid #000",
-      width: "100%",
+      width: "80vw",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       fontSize: "25px",
       fontWeight: "bold",
       color: "#000",
-      background: "linear-gradient(0deg, #FF4E50, #F9D423)",
+      background: "linear-gradient(0deg, #FF4E50, #F9D423)"
     }
-  }
+  };
 }
