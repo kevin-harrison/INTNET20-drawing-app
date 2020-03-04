@@ -1,39 +1,50 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
+import RoomList from "./components/RoomList";
+import Login from "./pages/Login";
+import "./fonts/Doodle.ttf";
 
 class App extends Component {
   state = {
-    data: null
-  };
-
-  componentDidMount() {
-    // Call our fetch function below once the component mounts
-    this.callBackendAPI()
-      .then(res => this.setState({ data: res.express }))
-      .catch(err => console.log(err));
-  }
-  // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch("/express_backend");
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-    return body;
+    data: null,
+    rooms: [
+      {
+        id: 1,
+        name: "Room 1",
+        available: true
+      },
+      {
+        id: 2,
+        name: "Room 2",
+        available: false
+      },
+      {
+        id: 3,
+        name: "Room 3",
+        available: true
+      }
+    ]
   };
 
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            {this.state.data}
-          </p>
-        </header>
-      </div>
+      <Router>
+        <div
+          className="App"
+          style={{
+            height: "100vh",
+            margin: "0"
+          }}
+        >
+          <Switch>
+            <Route path="/rooms" component={RoomList} />
+            {/* The '/' route needs to be at the bottom in order to catch all other routes
+            that fail to match previous Route paths */}
+            <Route path="/" component={Login} />
+          </Switch>
+        </div>
+      </Router>
     );
   }
 }
