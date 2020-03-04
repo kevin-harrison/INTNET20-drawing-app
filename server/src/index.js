@@ -34,11 +34,24 @@ app.use(betterLogging.expressMiddleware(console, {
   path: { show: true },
   body: { show: true },
 }));
-app.use(express.json()); /*
+
+
+// TEMPORARY!!!
+/* const util = require("util");
+app.use((req, res, next) => {
+  var obj_str = util.inspect(req.headers);
+  console.log(`HEADERS: ${obj_str}`);
+  next();
+}); */
+
+
+
+/*
 This is a middleware that parses the body of the request into a javascript object.
 It's basically just replacing the body property like this:
 req.body = JSON.parse(req.body)
 */
+app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
 // Setup session
@@ -60,7 +73,9 @@ const auth = require('./controllers/auth.controller.js');
 //const booking = require('./controllers/booking.controller.js');
 //const admin = require('./controllers/admin.controller.js');
 //
-//app.use('/api', auth.router);
+
+app.use('/api', auth.router);
+
 //app.use('/api', booking.router);
 //app.use('/api', admin.router);
 //
@@ -90,6 +105,10 @@ const auth = require('./controllers/auth.controller.js');
 //    else console.debug(`Saved userID: ${socket.handshake.session.userID}`);
 //  });
 //});
+
+app.get('/home', auth.requireAuth, (req, res) => {
+  res.send('YOU MADE IT HOME');
+});
 
 
 // Start server

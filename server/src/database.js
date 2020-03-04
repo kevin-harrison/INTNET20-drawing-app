@@ -19,19 +19,15 @@ const users = sequelize.define('Users', {
     password: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    screenname: {
-      type: DataTypes.STRING,
-      allowNull: false
     }
   }, {
     // Other model options go here
-  });
+});
 
 // Setup database
 async function initDatabase() {
   try {
-    await users.sync();//{ force: true });
+    await users.sync({ force: true });
     await sequelize.authenticate();
     console.log('Database created successfuly.');
   } catch (error) {
@@ -41,30 +37,52 @@ async function initDatabase() {
 initDatabase();
 
 
-async function createLogin(username, password, screenname) {
+async function createLogin(username, password) {
   /* Encrypt password and store in db */
   await users.create({
     username: username,
-    password: bcrypt.hashSync(password, 10),
-    screenname: screenname
+    password: bcrypt.hashSync(password, 10)
   }).catch((err) => {
-    console.log(err)
+    throw err;
   });
 }
 exports.createLogin = createLogin;
 
 
-/* Check for user login in database in database */
+/* Check for user login in database */
 async function checkLogin(username, password) {
-  const rows = await assistant.findAll({
-    attributes: ['name', 'password'],
+  const rows = await users.findAll({
+    attributes: ['username', 'password'],
     where: {
-      name: username
+      username: username
     }
   }).catch((err) => {
     throw err;
   });
-  const hash = rows[0].password;
-  return bcrypt.compareSync(password, hash);
+
+  if (rows[0] !== undefined) {
+    const hash = rows[0].password;
+    return bcrypt.compareSync(password, hash);
+  }
+  return false;
 }
 exports.checkLogin = checkLogin;
+
+
+/* Check for user in database */
+async function findUser(username) {
+  const rows = await users.findAll({
+    attributes: ['username'],
+    where: {
+      username: username
+    }
+  }).catch((err) => {
+    throw err;
+  });
+
+  if (rows[0] !== undefined) {
+    return true;
+  }
+  return false;
+}
+exports.findUser = findUser;
