@@ -54,13 +54,6 @@ io.use(socketIOSession(session, {
 }));
 // #endregion
 
-
-//// Serve client
-//app.use(express.static(publicPath));/*
-//express.static(absolutePathToPublicDirectory)
-//This will serve static files from the public directory, starting with index.html
-//*/
-//
 //// Bind REST controllers to /api/*
 //const auth = require('./controllers/auth.controller.js');
 //const booking = require('./controllers/booking.controller.js');
