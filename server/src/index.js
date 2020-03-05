@@ -16,6 +16,7 @@ const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
 const express = require('express');
 const http = require('http');
+const cookieParser = require('cookie-parser');
 // #endregion
 
 // #region setup boilerplate
@@ -53,6 +54,9 @@ req.body = JSON.parse(req.body)
 */
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+
+/* Enable parsing of cookies and use of secrets to generate cookies */
+app.use(cookieParser('secretKey')); // TODO: Move secret key to env variables
 
 // Setup session
 const session = expressSession({

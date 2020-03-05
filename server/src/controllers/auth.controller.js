@@ -6,10 +6,12 @@ const database = require('../database.js');
 const jwt = require('jsonwebtoken');
 
 
+
 // Authentication gaurd
 const requireAuth = (req, res, next) => {
   // If JWT exists and is valid call next
-  jwt.verify(req.headers.authorization, 'secretKey', (err, decoded) => {
+  console.log(`COOKIE: ${req.signedCookies.jwt}`);
+  jwt.verify(req.signedCookies.jwt, 'secretKey', (err, decoded) => {
     if (err) {
       res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
       return;
@@ -35,11 +37,12 @@ router.post('/login', (req, res) => {
   database.checkLogin(req.body.username, req.body.password)
     .then(function(result) {
       if (result === true) {
-        res.send(createToken(req.body.username));
-        /* res.header();
+        const token  = createToken(req.body.username);
+        res.cookie('jwt', token, { signed: true });
         res.status(200).json({
-          msg: 'Login succcessful'
-        }); */
+          msg: 'Login succcessful',
+          jwt: token
+        });
       } else {
         res.status(401).json({
           msg: 'Login failed'
@@ -76,6 +79,6 @@ router.post('/register', (req, res) => {
 
 router.get('/isAuthorized', requireAuth, (req, res) => {
   res.status(200).json({
-    msg: 'Congragulatons! You are authorized!'
+    msg: 'Congratulations! You are authorized!'
   });
 });
