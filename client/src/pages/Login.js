@@ -1,23 +1,117 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import Cookies from "universal-cookie";
 
 export default class Login extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      usernameInput: "",
+      passwordInput: ""
+    };
+    this.updateUsername = this.updateUsername.bind(this);
+    this.updatePassword = this.updatePassword.bind(this);
+    this.checkLogin = this.checkLogin.bind(this);
+    this.register = this.register.bind(this);
+  }
+
+  updateUsername(event) {
+    this.setState({ usernameInput: event.target.value });
+  }
+  updatePassword(event) {
+    this.setState({ passwordInput: event.target.value });
+  }
+
+  checkLogin() {
+    console.log('loginclicked');
+    fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: this.state.usernameInput,
+        password: this.state.passwordInput
+      })
+    })
+      .then(resp => {
+        console.log(resp);
+        if (resp.ok) return resp;
+        /* this.$store.commit('setIsAuthenticated', false);
+      this.$router.push({
+        path: 'login',
+      });
+      throw new Error(resp.text); */
+      })
+      .then(() => {
+        /* this.$store.commit('setIsAuthenticated', true);
+      this.$router.push({
+        path: 'booking',
+      }); */
+      });
+    /* .catch((error) => {
+      console.error('Authentication failed unexpectedly');
+      throw error;
+    }); */
+  }
+
+  register() {
+    console.log('registerclicked');
+    fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: this.state.usernameInput,
+        password: this.state.passwordInput
+      })
+    })
+      .then(resp => {
+        console.log(resp);
+        if (resp.ok) return resp;
+        /* this.$store.commit('setIsAuthenticated', false);
+      this.$router.push({
+        path: 'login',
+      });
+      throw new Error(resp.text); */
+      })
+      .then(() => {
+        /* this.$store.commit('setIsAuthenticated', true);
+      this.$router.push({
+        path: 'booking',
+      }); */
+      });
+    /* .catch((error) => {
+      console.error('Authentication failed unexpectedly');
+      throw error;
+    }); */
+  }
+
   render() {
     return (
       <div className="center">
         <div style={style.centerBox}>
           <input
+            id="usernameInput"
             type="text"
             placeholder="Username"
             style={style.inputArea}
+            onChange={this.updateUsername}
           ></input>
           <input
+            id="passwordInput"
             type="password"
             placeholder="Password"
             style={{ ...style.inputArea, ...style.password }}
+            onChange={this.updatePassword}
           ></input>
-          <button style={style.button}><Link to="/rooms" style={style.link}>LOGIN!</Link></button>
-          <Link to="/register" style={style.link}>REGISTER</Link>
+          <button style={style.button} onClick={this.checkLogin}>
+            LOGIN
+          </button>
+          <button style={style.button} onClick={this.register}>
+            Register
+          </button>
         </div>
       </div>
     );
@@ -56,7 +150,9 @@ const style = {
     fontFamily: "Doodle",
     fontSize: "20px",
     fontWeight: "bold",
-    boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.75)"
+    boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.75)",
+    textTransform: "uppercase",
+    letterSpacing: "2px" 
   },
   link: {
     color: "#000",

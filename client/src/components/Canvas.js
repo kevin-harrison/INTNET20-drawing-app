@@ -4,6 +4,7 @@ export default class Canvas extends Component {
   constructor(props) {
     super(props);
     this.onMouseDown = this.onMouseDown.bind(this);
+    this.onTouchStart = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.endPaintEvent = this.endPaintEvent.bind(this);
   }
@@ -98,5 +99,6 @@ const style = {
     borderTop: "2px solid black",
     width: "100vw",
     height: "fill-available",
+    touchAction: "none",
   }
 };
