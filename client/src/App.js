@@ -1,11 +1,17 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
+} from "react-router-dom";
 import "./App.css";
 import RoomList from "./components/RoomList";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import RoomPage from "./pages/RoomPage";
 import "./fonts/Doodle.ttf";
+import withAuth from "./components/withAuth";
 
 class App extends Component {
   state = {
@@ -41,11 +47,11 @@ class App extends Component {
             }}
           >
             <Switch>
-              <Route path="/rooms" component={RoomList} />
-              <Route path="/room/:roomName" component={RoomPage} />
+              <Route path="/rooms" component={withAuth(RoomList)} />
+              <Route exact path="/room/:roomName" component={withAuth(RoomPage)} />
               {/* The '/' route needs to be at the bottom in order to catch all other routes
             that fail to match previous Route paths */}
-              <Route path="/" component={Login} />
+              <Route exact path="/" component={Login} />
             </Switch>
             <Footer />
           </div>
