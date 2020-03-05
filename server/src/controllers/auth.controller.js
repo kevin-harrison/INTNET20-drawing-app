@@ -10,8 +10,9 @@ const jwt = require('jsonwebtoken');
 // Authentication gaurd
 // TODO: test with ip other than localhost
 const requireAuth = (req, res, next) => {
+  const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
   jwt.verify(req.signedCookies.jwt, 'secretKey', (err, decoded) => {
-    if (err || decoded.ipAddress !== req.connection.remoteAddress) {
+    if (err || decoded.ipAddress !== ip) {
       res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
       return;
     }
