@@ -47,8 +47,8 @@ class App extends Component {
             }}
           >
             <Switch>
-              <Route path="/rooms" component={withAuth(RoomList)} />
-              <Route exact path="/room/:roomName" component={withAuth(RoomPage)} />
+              <Route path="/rooms" component={RoomList} />
+              <Route exact path="/room/:roomName" component={RoomPage} />
               {/* The '/' route needs to be at the bottom in order to catch all other routes
             that fail to match previous Route paths */}
               <Route exact path="/" component={Login} />
