@@ -8,16 +8,14 @@ const jwt = require('jsonwebtoken');
 
 
 // Authentication gaurd
+// TODO: test with ip other than localhost
 const requireAuth = (req, res, next) => {
-  // If JWT exists and is valid call next
-  console.log(`COOKIE: ${req.signedCookies.jwt}`);
   jwt.verify(req.signedCookies.jwt, 'secretKey', (err, decoded) => {
-    if (err) {
+    if (err || decoded.ipAddress !== req.connection.remoteAddress) {
       res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
       return;
     }
     else {
-      console.log(`DECODED TOKEN ID: ${decoded.userID}`);
       next();
     }
   });
@@ -26,10 +24,10 @@ module.exports = { router, requireAuth };
 
 // ---------------------------------------- API routes -------------------------------------------------
 
-function createToken(username){
+function createToken(username, ip){
   // sign with default (HMAC SHA256)
-  let expirationDate =  Math.floor(Date.now() / 1000) + 300 //300 seconds from now
-  var token = jwt.sign({ userID: username, exp: expirationDate }, 'secretKey');
+  let expirationDate =  Math.floor(Date.now() / 1000) + 30000 //30000 seconds from now
+  var token = jwt.sign({ userID: username, ipAddress: ip, exp: expirationDate }, 'secretKey');
   return token;
 }
 
@@ -37,7 +35,8 @@ router.post('/login', (req, res) => {
   database.checkLogin(req.body.username, req.body.password)
     .then(function(result) {
       if (result === true) {
-        const token  = createToken(req.body.username);
+        const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
+        const token  = createToken(req.body.username, ip);
         res.cookie('jwt', token, { signed: true });
         res.status(200).json({
           msg: 'Login succcessful',

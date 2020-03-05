@@ -40,11 +40,11 @@ app.use(betterLogging.expressMiddleware(console, {
 // TEMPORARY!!!
 /* const util = require("util");
 app.use((req, res, next) => {
-  var obj_str = util.inspect(req.headers);
+  var obj_str = util.inspect(req.connection.remoteAddress);
   console.log(`HEADERS: ${obj_str}`);
   next();
-}); */
-
+});
+ */
 
 
 /*

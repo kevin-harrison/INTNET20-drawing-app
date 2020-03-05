@@ -11,18 +11,20 @@ const sequelize = new Sequelize('', '', '', {
 });
 
 const users = sequelize.define('Users', {
-    // Model attributes are defined here
-    username: {
-      type: DataTypes.STRING,
-      primaryKey: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
-  }, {
-    // Other model options go here
+  // Model attributes are defined here
+  username: {
+    type: DataTypes.STRING,
+    primaryKey: true
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, {
+  // Other model options go here
 });
+
+
 
 // Setup database
 async function initDatabase() {
