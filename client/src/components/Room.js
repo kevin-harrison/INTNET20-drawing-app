@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 export default class Room extends Component {
   getStyle = () => {
@@ -24,8 +25,18 @@ export default class Room extends Component {
   render() {
     return (
       <div style={this.getStyle()}>
-        <p>{this.props.name}</p>
+        <Link to={`/room/${this.props.name}`} style={style.link}>{this.props.name}</Link>
       </div>
     );
+  }
+}
+const style = {
+  link: {
+    color: "#000",
+    fontFamily: "Doodle",
+    fontSize: "15px",
+    fontWeight: "bold",
+    textDecoration: "none",
+    letterSpacing: "3px"
   }
 }

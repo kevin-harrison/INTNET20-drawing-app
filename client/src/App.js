@@ -4,6 +4,7 @@ import "./App.css";
 import RoomList from "./components/RoomList";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
+import RoomPage from "./pages/RoomPage";
 import "./fonts/Doodle.ttf";
 
 class App extends Component {
@@ -41,6 +42,7 @@ class App extends Component {
           >
             <Switch>
               <Route path="/rooms" component={RoomList} />
+              <Route path="/room/:roomName" component={RoomPage} />
               {/* The '/' route needs to be at the bottom in order to catch all other routes
             that fail to match previous Route paths */}
               <Route path="/" component={Login} />
