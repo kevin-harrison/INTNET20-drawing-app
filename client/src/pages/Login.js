@@ -23,7 +23,7 @@ export default class Login extends Component {
   }
 
   checkLogin() {
-    console.log('loginclicked');
+    console.log("loginclicked");
     fetch("/api/login", {
       method: "POST",
       headers: {
@@ -36,27 +36,18 @@ export default class Login extends Component {
     })
       .then(resp => {
         console.log(resp);
-        if (resp.ok) return resp;
-        /* this.$store.commit('setIsAuthenticated', false);
-      this.$router.push({
-        path: 'login',
-      });
-      throw new Error(resp.text); */
+        if (resp.ok) {
+          this.props.history.push("/rooms");
+        }
       })
-      .then(() => {
-        /* this.$store.commit('setIsAuthenticated', true);
-      this.$router.push({
-        path: 'booking',
-      }); */
+      .catch(error => {
+        console.error("Authentication failed unexpectedly");
+        throw error;
       });
-    /* .catch((error) => {
-      console.error('Authentication failed unexpectedly');
-      throw error;
-    }); */
   }
 
   register() {
-    console.log('registerclicked');
+    console.log("registerclicked");
     fetch("/api/register", {
       method: "POST",
       headers: {
@@ -70,22 +61,11 @@ export default class Login extends Component {
       .then(resp => {
         console.log(resp);
         if (resp.ok) return resp;
-        /* this.$store.commit('setIsAuthenticated', false);
-      this.$router.push({
-        path: 'login',
-      });
-      throw new Error(resp.text); */
       })
-      .then(() => {
-        /* this.$store.commit('setIsAuthenticated', true);
-      this.$router.push({
-        path: 'booking',
-      }); */
+      .catch(error => {
+        console.error("Authentication failed unexpectedly");
+        throw error;
       });
-    /* .catch((error) => {
-      console.error('Authentication failed unexpectedly');
-      throw error;
-    }); */
   }
 
   render() {
@@ -152,7 +132,7 @@ const style = {
     fontWeight: "bold",
     boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.75)",
     textTransform: "uppercase",
-    letterSpacing: "2px" 
+    letterSpacing: "2px"
   },
   link: {
     color: "#000",
