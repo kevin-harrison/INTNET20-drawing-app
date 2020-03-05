@@ -4,14 +4,13 @@ const express = require('express');
 const router = express.Router();
 const database = require('../database.js');
 const jwt = require('jsonwebtoken');
-
+require('dotenv').config();
 
 
 // Authentication gaurd
-// TODO: test with ip other than localhost
 const requireAuth = (req, res, next) => {
   const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-  jwt.verify(req.signedCookies.jwt, 'secretKey', (err, decoded) => {
+  jwt.verify(req.signedCookies.jwt, process.env.KEY, (err, decoded) => {
     if (err || decoded.ipAddress !== ip) {
       res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
       return;
@@ -28,7 +27,7 @@ module.exports = { router, requireAuth };
 function createToken(username, ip){
   // sign with default (HMAC SHA256)
   let expirationDate =  Math.floor(Date.now() / 1000) + 30000 //30000 seconds from now
-  var token = jwt.sign({ userID: username, ipAddress: ip, exp: expirationDate }, 'secretKey');
+  var token = jwt.sign({ userID: username, ipAddress: ip, exp: expirationDate }, process.env.KEY);
   return token;
 }
 

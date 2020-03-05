@@ -3,6 +3,7 @@
 'use strict';
 
 // #region require dependencies
+require('dotenv').config();
 const betterLogging = require('better-logging');
 // enhances log messages with timestamps etc
 betterLogging.default(console, {
@@ -56,11 +57,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* Enable parsing of cookies and use of secrets to generate cookies */
-app.use(cookieParser('secretKey')); // TODO: Move secret key to env variables
+app.use(cookieParser(process.env.KEY));
 
 // Setup session
 const session = expressSession({
-  secret: 'Super secret! Shh! Don\'t tell anyone...',
+  secret: process.env.KEY,
   resave: true,
   saveUninitialized: true,
 });
