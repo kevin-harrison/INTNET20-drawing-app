@@ -70,6 +70,24 @@ export default class Canvas extends Component {
     this.ctx.stroke();
     this.prevPos = { offsetX, offsetY };
   }
+  async sendPaintData() {
+    const body = {
+      line: this.line,
+      userId: this.userId,
+    };
+    
+    /* 
+    // We use the native fetch API to make requests to the server
+    const req = await fetch('http://localhost:4000/paint', {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    const res = await req.json(); */
+    this.line = [];
+  }
   resizeCanvas() {
     console.log(this);
     console.log(document.documentElement.clientWidth);

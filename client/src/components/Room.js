@@ -11,32 +11,22 @@ export default class Room extends Component {
       alignItems: "center",
       fontWeight: "bold",
       color: "aliceblue",
-      borderBottom: "1px solid #444"
+      borderBottom: "1px solid #444",
+      textDecoration: "none",
     };
     if (this.props.available) {
-      style.backgroundColor = 'rgb(31, 224, 86)';
+      style.backgroundColor = "rgb(31, 224, 86)";
     } else {
-      style.backgroundColor = 'rgb(228, 22, 22)';
-        
+      style.backgroundColor = "rgb(228, 22, 22)";
     }
     return style;
   };
 
   render() {
     return (
-      <div style={this.getStyle()}>
-        <Link to={`/room/${this.props.name}`} style={style.link}>{this.props.name}</Link>
-      </div>
+      <Link to={`/room/${this.props.name}`} style={this.getStyle()}>
+        {this.props.name}
+      </Link>
     );
-  }
-}
-const style = {
-  link: {
-    color: "#000",
-    fontFamily: "Doodle",
-    fontSize: "15px",
-    fontWeight: "bold",
-    textDecoration: "none",
-    letterSpacing: "3px"
   }
 }

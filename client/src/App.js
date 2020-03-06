@@ -15,24 +15,13 @@ import withAuth from "./components/withAuth";
 
 class App extends Component {
   state = {
-    data: null,
-    rooms: [
-      {
-        id: 1,
-        name: "Room 1",
-        available: true
-      },
-      {
-        id: 2,
-        name: "Room 2",
-        available: false
-      },
-      {
-        id: 3,
-        name: "Room 3",
-        available: true
-      }
-    ]
+    data: {
+      socket: null
+    }
+  };
+
+  setSocket = socket => {
+    this.state.data.socket = socket;
   };
 
   render() {
@@ -51,7 +40,10 @@ class App extends Component {
               <Route exact path="/room/:roomName" component={RoomPage} />
               {/* The '/' route needs to be at the bottom in order to catch all other routes
             that fail to match previous Route paths */}
-              <Route exact path="/" component={Login} />
+              <Route
+                path="/"
+                render={props => <Login {...props} setSocket={this.setSocket} />}
+              />
             </Switch>
             <Footer />
           </div>

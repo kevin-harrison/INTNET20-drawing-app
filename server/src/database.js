@@ -4,14 +4,39 @@
 const { Sequelize, DataTypes, QueryTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 
-// Define database
+// ------------------------------ Define database ------------------------------
 const sequelize = new Sequelize('', '', '', {
   dialect: 'sqlite',
   storage: './database.sqlite'
 });
 
+const rooms = sequelize.define('Rooms', {
+  name: {
+    type: DataTypes.STRING,
+    primaryKey: true
+  }
+}, {
+  // Other model options go here
+});
+
+const sockets = sequelize.define('Sockets', {
+  socketID: {
+    type: DataTypes.STRING,
+    primaryKey: true
+  },
+  currentRoomName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    references: {
+      model: rooms,
+      key: 'name',
+    }
+  }
+}, {
+  // Other model options go here
+});
+
 const users = sequelize.define('Users', {
-  // Model attributes are defined here
   username: {
     type: DataTypes.STRING,
     primaryKey: true
@@ -19,17 +44,45 @@ const users = sequelize.define('Users', {
   password: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  socketID: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    references: {
+      model: sockets,
+      key: 'socketID',
+    }
   }
 }, {
   // Other model options go here
 });
 
+const lines = sequelize.define('Lines', {
+  roomName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    references: {
+      model: rooms,
+      key: 'name',
+    }
+  },
+  style: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, {
+  // Other model options go here
+});
 
+// -----------------------------------------------------------------------------
 
 // Setup database
 async function initDatabase() {
   try {
+    await rooms.sync({ force: true });
+    await sockets.sync({ force: true });
     await users.sync({ force: true });
+    await lines.sync({ force: true });
     await sequelize.authenticate();
     console.log('Database created successfuly.');
   } catch (error) {
