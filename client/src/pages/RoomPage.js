@@ -8,7 +8,7 @@ export default class RoomPage extends Component {
       <header style={style.header}>
         {this.props.match.params.roomName}
       </header>
-      <Canvas />
+      <Canvas roomName={this.props.match.params.roomName}  socket={this.props.socket}/>
       </div>
     );
   }
