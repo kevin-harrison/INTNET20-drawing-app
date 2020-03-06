@@ -6,6 +6,29 @@ export default class Canvas extends Component {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.endPaintEvent = this.endPaintEvent.bind(this);
+
+    this.props.socket.on('user_joined', (msg) => {
+      console.log(msg);
+    });
+
+    console.log(this.props.socket);
+
+    this.props.socket.emit("join_room", this.props.roomName);
+
+    fetch(`/api/room/${this.props.roomName}/join`)
+    .then((resp) => {
+      if (!resp.ok) {
+        throw new Error(`Unexpected failure when joining room: ${this.props.roomName}`);
+      }
+      return resp.json();
+    })
+    .catch(console.error)
+    /* .then((data) => {
+      this.entries = data.list;
+    }); */
+
+
+
   }
   isPainting = false;
   // Different stroke styles to be used for user and guest
@@ -17,9 +40,6 @@ export default class Canvas extends Component {
   prevPos = { offsetX: 0, offsetY: 0 };
 
   onMouseDown({ nativeEvent }) {
-    console.log("Mousedown");
-    console.log(nativeEvent);
-    console.log(this.line);
     let offsetX = nativeEvent.offsetX;
     let offsetY = nativeEvent.offsetY;
     if (offsetX === undefined) {
@@ -30,7 +50,6 @@ export default class Canvas extends Component {
     this.prevPos = { offsetX, offsetY };
   }
   onMouseMove({ nativeEvent }) {
-    console.log("Mousemove");
     if (this.isPainting) {
       let offsetX = nativeEvent.offsetX;
       let offsetY = nativeEvent.offsetY;
@@ -50,7 +69,6 @@ export default class Canvas extends Component {
     }
   }
   endPaintEvent() {
-    console.log("Mouseup");
     if (this.isPainting) {
       this.isPainting = false;
       /* this.sendPaintData(); */
@@ -89,9 +107,6 @@ export default class Canvas extends Component {
     this.line = [];
   }
   resizeCanvas() {
-    console.log(this);
-    console.log(document.documentElement.clientWidth);
-    console.log(document.documentElement.clientHeight);
     this.canvas.width = document.documentElement.clientWidth;
     this.canvas.height = document.documentElement.clientHeight;
   }

@@ -19,16 +19,16 @@ router.get('/roomList', (req, res) => {
  * @returns {void}
  */
 router.get('/room/:room/join', (req, res) => {
-    const room = model.findRoom(req.params.room);
+    /* const room = model.findRoom(req.params.room);
     if (room === undefined) {
       res.status(404).json({
         msg: `No room with ID: ${req.params.room}`,
         href_roomList: '/roomList',
       });
       return;
-    }
+    } */
   
-    const user = model.findUser(req.session.userID);
+    /* const user = database.findUser(req.session.userID); */
   
   /*   // Leave previous room if exists
     if (user.currentRoom !== null) {
@@ -36,18 +36,18 @@ router.get('/room/:room/join', (req, res) => {
       user.socket.leave(user.currentRoom);
     }   */
     // Join the right socket.io room
-    user.currentRoom = room.name;
+    /* user.currentRoom = room.name; */
     // console.log(`${user.name} joining ${user.currentRoom} !!!`);
-    user.socket.join(user.currentRoom);
+    /* user.socket.join(user.currentRoom); */
   
     // Send join message
-    model.addMessage(user.currentRoom, `${user.name} joined the room!`);
+    database.joinRoom(req.params.room);
   
     // Send http response
     res.status(200).json({
-      list: room.messages,
+      /* list: room.messages,
       msg: `Successfully joined room: ${room.name}`,
       href_messages: `/room/${room.name}`,
-      href_send_message: `/room/${room.name}/message`,
+      href_send_message: `/room/${room.name}/message`, */
     });
   });

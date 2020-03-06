@@ -36,8 +36,14 @@ class App extends Component {
             }}
           >
             <Switch>
-              <Route path="/rooms" component={RoomList} />
-              <Route exact path="/room/:roomName" component={RoomPage} />
+              <Route
+                path="/rooms"
+                render={props => <RoomList {...props} socket={this.state.data.socket} />}
+              />
+              <Route
+                path="/room/:roomName"
+                render={props => <RoomPage {...props} socket={this.state.data.socket} />}
+              />
               {/* The '/' route needs to be at the bottom in order to catch all other routes
             that fail to match previous Route paths */}
               <Route

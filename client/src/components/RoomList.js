@@ -8,17 +8,17 @@ class RoomList extends Component {
     rooms: [
       {
         id: 1,
-        name: "Room 1",
+        name: "Room1",
         available: true
       },
       {
         id: 2,
-        name: "Room 2",
+        name: "Room2",
         available: false
       },
       {
         id: 3,
-        name: "Room 3",
+        name: "Room3",
         available: true
       }
     ]
@@ -29,7 +29,7 @@ class RoomList extends Component {
         <div style={this.style.roomHeader}>ROOMS</div>
         <div style={this.style.roomBox}>
           {this.state.rooms.map(room => (
-            <Room key={room.id} name={room.name} available={room.available} />
+            <Room key={room.id} name={room.name} available={room.available} socket={this.props.socket}/>
           ))}
         </div>
       </div>

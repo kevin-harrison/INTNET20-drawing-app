@@ -75,6 +75,20 @@ const lines = sequelize.define('Lines', {
 });
 
 // -----------------------------------------------------------------------------
+// SETUP SOCKET COMMUNICATION
+// Will be initialized in the exports.init function
+exports.io = undefined;
+
+/**
+ * Initialize the model
+ * @param { { io: SocketIO.Server} } config - The configurations needed to initialize the model.
+ * @returns {void}
+ */
+exports.init = ({ io }) => {
+  exports.io = io;
+};
+
+//------------------------------------------------------------------------------
 
 // Setup database
 async function initDatabase() {
@@ -86,7 +100,7 @@ async function initDatabase() {
     await sequelize.authenticate();
     console.log('Database created successfuly.');
   } catch (error) {
-    console.error('Unable to create database:', error);
+    console.error('Unable to create database: ', error);
   }
 }
 initDatabase();
@@ -141,3 +155,14 @@ async function findUser(username) {
   return false;
 }
 exports.findUser = findUser;
+
+
+/**
+ * Called when a user joins a room
+ * @param {String} roomName - The name of the room to add the message to.
+ * @returns {void}
+ */
+exports.joinRoom = (roomName) => {
+  /* exports.findRoom(roomName).addMessage(message); */
+  exports.io.in(roomName).emit('userJoined', "A new user has joined the room");
+};
