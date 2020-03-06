@@ -47,11 +47,15 @@ app.use(betterLogging.expressMiddleware(console, {
 // TEMPORARY!!!
 /* const util = require("util");
 app.use((req, res, next) => {
-  var obj_str = util.inspect(req.connection.remoteAddress);
-  console.log(`HEADERS: ${obj_str}`);
+  var obj_str = util.inspect(req);
+  if (req.originalUrl == '/api/login') {
+    console.log('---------------------------- NEW LOGIN REQUEST -----------------------------------------------------------------');
+    console.log(`HEADERS: ${obj_str}`);
+    console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
+  }
   next();
-});
- */
+}); */
+
 
 
 /*
@@ -80,22 +84,33 @@ io.use(socketIOSession(session, {
 
 // Bind REST controllers to /api/*
 const auth = require('./controllers/auth.controller.js');
+const rooms = require('./controllers/room.controller.js');
 
 //const booking = require('./controllers/booking.controller.js');
 //const admin = require('./controllers/admin.controller.js');
 //
 
 app.use('/api', auth.router);
-
+app.use('/api', rooms.router);
 
 //app.use('/api', booking.router);
 //app.use('/api', admin.router);
 
+/* const util = require("util");
+io.use((socket, next) => {
+  var obj_str = util.inspect(socket);
+  console.log('---------------------------- NEW SOCKET REQUEST -----------------------------------------------------------------');
+  console.log(`SOCKET: ${obj_str}`);
+  console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
+  next();
+}); */
 
 // Handle connected socket.io sockets
-io.on('connection', (socket) => {
-  console.log(socket.id);
-  console.log('New socket id');
+// TODO: Handle too many socket requests
+// TODO: Handle sockets closing?
+io.use(auth.requireAuthSocket).on('connection', (socket) => {
+  console.log(`New socket id: ${socket.id}`);
+  
   // This function serves to bind socket.io connections to user models
   /* if (socket.handshake.session.userID
     && model.findUser(socket.handshake.session.userID) !== undefined
@@ -118,11 +133,6 @@ io.on('connection', (socket) => {
     else console.debug(`Saved userID: ${socket.handshake.session.userID}`);
   }); */
 });
-
-app.get('/home', auth.requireAuth, (req, res) => {
-  res.send('YOU MADE IT HOME');
-});
-
 
 // Start server
 httpServer.listen(port, () => {

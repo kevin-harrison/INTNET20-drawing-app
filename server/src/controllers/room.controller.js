@@ -8,7 +8,12 @@ module.exports = { router }
 
 // ---------------------------------------- API routes -------------------------------------------------
 router.get('/roomList', (req, res) => {
-    
+    database.getRooms()
+      .then((result) => {
+        res.status(200).json({
+          roomList: result
+        });
+      });
 });
 
 /**

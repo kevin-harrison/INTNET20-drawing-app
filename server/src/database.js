@@ -84,6 +84,10 @@ async function initDatabase() {
     await users.sync({ force: true });
     await lines.sync({ force: true });
     await sequelize.authenticate();
+
+    await rooms.create({ name: 'Test1' });
+    await rooms.create({ name: 'Test2' });
+
     console.log('Database created successfuly.');
   } catch (error) {
     console.error('Unable to create database:', error);
@@ -141,3 +145,13 @@ async function findUser(username) {
   return false;
 }
 exports.findUser = findUser;
+
+async function getRooms() {
+  const rows = await rooms.findAll({
+    attributes: ['name']
+  }).catch((err) => {
+    throw err;
+  })
+  return rows;
+}
+exports.getRooms = getRooms;

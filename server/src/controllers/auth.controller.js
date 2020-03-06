@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const database = require('../database.js');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 
 // Authentication gaurd
@@ -19,15 +20,38 @@ const requireAuth = (req, res, next) => {
     }
   });
 };
-module.exports = { router, requireAuth };
+
+// Socket authentication gaurd
+const requireAuthSocket = (socket, next) => {
+  // Parse socket request
+  const token  = cookieParser.signedCookie(socket.handshake.cookies.jwt, process.env.KEY);
+  const ip = socket.handshake.headers['x-forwarded-for'] === null ? 
+    socket.handshake.address : 
+    socket.handshake.headers['x-forwarded-for'];
+
+  jwt.verify(token, process.env.KEY, (err, decoded) => {
+    if(err || decoded.ipAddress !== ip) return;
+    socket.decoded = decoded; // TODO: is this ok security-wise?
+    console.log('going next');
+    next();
+  });
+};
+
+module.exports = { router, requireAuth, requireAuthSocket };
 
 // ---------------------------------------- API routes -------------------------------------------------
 
-function createToken(username, ip){
-  // sign with default (HMAC SHA256)
-  let expirationDate =  Math.floor(Date.now() / 1000) + 30000 //30000 seconds from now
-  var token = jwt.sign({ userID: username, ipAddress: ip, exp: expirationDate }, process.env.KEY);
-  return token;
+function createToken(res, username, ip){  
+  const tokenLifetime = 30000;
+  const tokenExpirationDate = new Date(Date.now() + (tokenLifetime * 1000))
+
+  var token = jwt.sign({ userID: username, ipAddress: ip, expiresIn: tokenLifetime }, process.env.KEY);
+  res.cookie('jwt', token, { 
+    expires: tokenExpirationDate,
+    signed: true, 
+    secure: false, // TODO: make true once HTTPS works
+    httpOnly: true
+  });
 }
 
 router.post('/login', (req, res) => {
@@ -35,11 +59,9 @@ router.post('/login', (req, res) => {
     .then(function(result) {
       if (result === true) {
         const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-        const token  = createToken(req.body.username, ip);
-        res.cookie('jwt', token, { signed: true });
+        createToken(res, req.body.username, ip);
         res.status(200).json({
           msg: 'Login succcessful',
-          jwt: token
         });
       } else {
         res.status(401).json({
