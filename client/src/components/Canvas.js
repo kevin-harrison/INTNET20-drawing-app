@@ -4,7 +4,6 @@ export default class Canvas extends Component {
   constructor(props) {
     super(props);
     this.onMouseDown = this.onMouseDown.bind(this);
-    this.onTouchStart = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.endPaintEvent = this.endPaintEvent.bind(this);
   }
@@ -19,14 +18,26 @@ export default class Canvas extends Component {
 
   onMouseDown({ nativeEvent }) {
     console.log("Mousedown");
-    const { offsetX, offsetY } = nativeEvent;
+    console.log(nativeEvent);
+    console.log(this.line);
+    let offsetX = nativeEvent.offsetX;
+    let offsetY = nativeEvent.offsetY;
+    if (offsetX === undefined) {
+      offsetX = nativeEvent.touches[0].clientX;
+      offsetY = nativeEvent.touches[0].clientY;
+    }
     this.isPainting = true;
     this.prevPos = { offsetX, offsetY };
   }
   onMouseMove({ nativeEvent }) {
     console.log("Mousemove");
     if (this.isPainting) {
-      const { offsetX, offsetY } = nativeEvent;
+      let offsetX = nativeEvent.offsetX;
+      let offsetY = nativeEvent.offsetY;
+      if (offsetX === undefined) {
+        offsetX = nativeEvent.touches[0].clientX;
+        offsetY = nativeEvent.touches[0].clientY;
+      }
       const offSetData = { offsetX, offsetY };
       // Set the start and stop position of the paint event.
       const positionData = {
@@ -59,10 +70,28 @@ export default class Canvas extends Component {
     this.ctx.stroke();
     this.prevPos = { offsetX, offsetY };
   }
+  async sendPaintData() {
+    const body = {
+      line: this.line,
+      userId: this.userId,
+    };
+    
+    /* 
+    // We use the native fetch API to make requests to the server
+    const req = await fetch('http://localhost:4000/paint', {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    const res = await req.json(); */
+    this.line = [];
+  }
   resizeCanvas() {
-      console.log(this);
-      console.log(document.documentElement.clientWidth);
-      console.log(document.documentElement.clientHeight);
+    console.log(this);
+    console.log(document.documentElement.clientWidth);
+    console.log(document.documentElement.clientHeight);
     this.canvas.width = document.documentElement.clientWidth;
     this.canvas.height = document.documentElement.clientHeight;
   }
@@ -74,8 +103,8 @@ export default class Canvas extends Component {
     this.ctx = this.canvas.getContext("2d");
     this.ctx.lineJoin = "round";
     this.ctx.lineCap = "round";
-    this.ctx.lineWidth = 5;
-    window.addEventListener('resize', this.resizeCanvas());
+    this.ctx.lineWidth = 20;
+    window.addEventListener("resize", this.resizeCanvas());
   }
 
   render() {
@@ -85,9 +114,12 @@ export default class Canvas extends Component {
         ref={ref => (this.canvas = ref)}
         style={style.canvas}
         onMouseDown={this.onMouseDown}
+        onMouseMove={this.onMouseMove}
         onMouseLeave={this.endPaintEvent}
         onMouseUp={this.endPaintEvent}
-        onMouseMove={this.onMouseMove}
+        onTouchStart={this.onMouseDown}
+        onTouchMove={this.onMouseMove}
+        onTouchEnd={this.endPaintEvent}
       />
     );
   }
@@ -96,9 +128,8 @@ export default class Canvas extends Component {
 const style = {
   canvas: {
     background: "#fff",
-    borderTop: "2px solid black",
     width: "100vw",
-    height: "fill-available",
-    touchAction: "none",
+    height: "100vh",
+    touchAction: "none"
   }
 };

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import Cookies from "universal-cookie";
+import io from 'socket.io-client';
 
 export default class Login extends Component {
   constructor(props) {
@@ -23,7 +22,6 @@ export default class Login extends Component {
   }
 
   checkLogin() {
-    console.log("loginclicked");
     fetch("/api/login", {
       method: "POST",
       headers: {
@@ -37,6 +35,8 @@ export default class Login extends Component {
       .then(resp => {
         console.log(resp);
         if (resp.ok) {
+          /* Connect and give socketID for connection */
+          this.props.setSocket(io().connect());
           this.props.history.push("/rooms");
         }
       })
@@ -47,7 +47,6 @@ export default class Login extends Component {
   }
 
   register() {
-    console.log("registerclicked");
     fetch("/api/register", {
       method: "POST",
       headers: {

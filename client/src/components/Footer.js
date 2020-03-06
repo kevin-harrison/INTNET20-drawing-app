@@ -27,7 +27,7 @@ const footerStyle = {
   color: "#fff",
   textAlign: "center",
   padding: "10px",
-  border: "2px solid #000",
+  borderTop: "2px solid #ccc",
   flexShrink: "0",
 };
 
