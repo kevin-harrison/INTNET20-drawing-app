@@ -16,7 +16,7 @@ const path = require('path'); // helper library for resolving relative paths
 const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
 const express = require('express');
-const https = require('https');
+const http = require('http');
 var fs = require('fs');
 const cookieParser = require('cookie-parser');
 // #endregion
@@ -33,8 +33,8 @@ var options = {
   cert: fs.readFileSync('keys/cert.pem')
 };
 
-const httpsServer = https.Server(options, app);
-const io = require('socket.io').listen(httpsServer); // Creates socket.io app
+const httpServer = http.Server(options, app);
+const io = require('socket.io').listen(httpServer); // Creates socket.io app
 
 // Setup middlewares
 app.use(betterLogging.expressMiddleware(console, {
@@ -125,6 +125,6 @@ app.get('/home', auth.requireAuth, (req, res) => {
 
 
 // Start server
-httpsServer.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
