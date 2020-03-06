@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const database = require('../database.js');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
 
 
 // Authentication gaurd
