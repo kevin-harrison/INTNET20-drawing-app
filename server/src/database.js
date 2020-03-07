@@ -19,23 +19,6 @@ const rooms = sequelize.define('Rooms', {
   // Other model options go here
 });
 
-const sockets = sequelize.define('Sockets', {
-  socketID: {
-    type: DataTypes.STRING,
-    primaryKey: true
-  },
-  currentRoomName: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    references: {
-      model: rooms,
-      key: 'name',
-    }
-  }
-}, {
-  // Other model options go here
-});
-
 const users = sequelize.define('Users', {
   username: {
     type: DataTypes.STRING,
@@ -45,12 +28,16 @@ const users = sequelize.define('Users', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  socketID: {
+  sessionID: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  currentRoomName: {
     type: DataTypes.STRING,
     allowNull: true,
     references: {
-      model: sockets,
-      key: 'socketID',
+      model: rooms,
+      key: 'name',
     }
   }
 }, {
@@ -66,45 +53,40 @@ const lines = sequelize.define('Lines', {
       key: 'name',
     }
   },
-  style: {
+  data: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  style: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   // Other model options go here
 });
-
 // -----------------------------------------------------------------------------
-// SETUP SOCKET COMMUNICATION
-// Will be initialized in the exports.init function
-exports.io = undefined;
 
-/**
- * Initialize the model
- * @param { { io: SocketIO.Server} } config - The configurations needed to initialize the model.
- * @returns {void}
- */
-exports.init = ({ io }) => {
-  exports.io = io;
-};
-
-//------------------------------------------------------------------------------
 
 // Setup database
 async function initDatabase() {
   try {
-    await rooms.sync({ force: true });
-    await sockets.sync({ force: true });
-    await users.sync({ force: true });
     await lines.sync({ force: true });
+    await users.sync({ force: true });
+    await rooms.sync({ force: true });
     await sequelize.authenticate();
 
-    await rooms.create({ name: 'Test1' });
-    await rooms.create({ name: 'Test2' });
+
+    // TEMPORARY EXAMPLE DATA
+    await rooms.create({ name: 'Room1' });
+    await rooms.create({ name: 'Room2' });
+    await lines.create({ roomName: 'Room1', data: '{ Line Object }' , style: null });
+    await lines.create({ roomName: 'Room1', data: '{ Line Object }' , style: null });
+    await lines.create({ roomName: 'Room2', data: '{ Line Object }' , style: null });
 
     console.log('Database created successfuly.');
   } catch (error) {
-    console.error('Unable to create database: ', error);
+    console.error('Unable to create database: ');
+    throw error;
   }
 }
 initDatabase();
@@ -170,6 +152,51 @@ async function getRooms() {
 }
 exports.getRooms = getRooms;
 
+async function getRoom(roomName) {
+  const rows = await lines.findAll({
+    attributes: ['data', 'style'],
+    where: {
+      roomName: roomName
+    }
+  }).catch((err) => {
+    throw err;
+  });
+
+  return rows;
+}
+exports.getRoom = getRoom;
+
+async function findRoom(roomName) {
+  const rows = await rooms.findAll({
+    attributes: ['name'],
+    where: {
+      name: roomName
+    }
+  }).catch((err) => {
+    throw err;
+  });
+
+  if (rows[0] !== undefined) {
+    return true;
+  }
+  return false;
+}
+exports.findRoom = findRoom;
+
+
+// ------------------------------------------- SOCKET COMMUNICATION -------------------------------------------
+// Will be initialized in the exports.init function
+exports.io = undefined;
+
+/**
+ * Initialize the model
+ * @param { { io: SocketIO.Server} } config - The configurations needed to initialize the model.
+ * @returns {void}
+ */
+exports.init = ({ io }) => {
+  exports.io = io;
+};
+
 /**
  * Called when a user joins a room
  * @param {String} roomName - The name of the room to add the message to.
@@ -179,3 +206,5 @@ exports.joinRoom = (roomName) => {
   /* exports.findRoom(roomName).addMessage(message); */
   exports.io.in(roomName).emit('userJoined', "A new user has joined the room");
 };
+// -------------------------------------------------------------------------------------------------------------
+

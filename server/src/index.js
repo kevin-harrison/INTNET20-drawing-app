@@ -45,17 +45,6 @@ app.use(
   })
 );
 
-// TEMPORARY!!!
-/* const util = require("util");
-app.use((req, res, next) => {
-  var obj_str = util.inspect(req);
-  if (req.originalUrl == '/api/login') {
-    console.log('---------------------------- NEW LOGIN REQUEST -----------------------------------------------------------------');
-    console.log(`HEADERS: ${obj_str}`);
-    console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
-  }
-  next();
-}); */
 
 
 /*
@@ -82,6 +71,18 @@ io.use(
     saveUninitialized: true
   })
 );
+
+
+// TEMPORARY!!!
+/* const util = require("util");
+app.use((req, res, next) => {
+  var obj_str = util.inspect(req.session.id);
+    console.log('---------------------------- NEW REQUEST -----------------------------------------------------------------');
+    console.log(`HEADERS: ${obj_str}`);
+    console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
+  next();
+}); */
+
 // #endregion
 
 // Bind REST controllers to /api/*
@@ -113,10 +114,12 @@ io.use((socket, next) => {
 
 // Handle connected socket.io sockets
 // TODO: Handle too many socket requests
-// TODO: Handle sockets closing?
+// TODO: Handle sockets closing? => remove connections from database
 io.use(auth.requireAuthSocket).on('connection', (socket) => {
-  console.log(`New socket id: ${socket.id}`);
-  
+  console.log(`New socket id=${socket.id}, user=${socket.tokenInfo.userID}, session=${socket.tokenInfo.sessionID}`);
+  // TODO: update database with connection
+
+
   socket.on("join_room", room => {
     console.log('TRYING');
     socket.join(room, () => {

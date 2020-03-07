@@ -31,8 +31,7 @@ const requireAuthSocket = (socket, next) => {
 
   jwt.verify(token, process.env.KEY, (err, decoded) => {
     if(err || decoded.ipAddress !== ip) return;
-    socket.decoded = decoded; // TODO: is this ok security-wise?
-    console.log('going next');
+    socket.tokenInfo = decoded; // TODO: is this ok security-wise?
     next();
   });
 };
@@ -41,11 +40,18 @@ module.exports = { router, requireAuth, requireAuthSocket };
 
 // ---------------------------------------- API routes -------------------------------------------------
 
-function createToken(res, username, ip){  
+function sendToken(req, res){  
   const tokenLifetime = 30000;
-  const tokenExpirationDate = new Date(Date.now() + (tokenLifetime * 1000))
+  const tokenExpirationDate = new Date(Date.now() + (tokenLifetime * 1000));
+  const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
 
-  var token = jwt.sign({ userID: username, ipAddress: ip, expiresIn: tokenLifetime }, process.env.KEY);
+  var token = jwt.sign({
+    userID: req.body.username, 
+    sessionID: req.session.id,
+    ipAddress: ip, 
+    expiresIn: tokenLifetime 
+  }, process.env.KEY);
+
   res.cookie('jwt', token, { 
     expires: tokenExpirationDate,
     signed: true, 
@@ -58,8 +64,7 @@ router.post('/login', (req, res) => {
   database.checkLogin(req.body.username, req.body.password)
     .then(function(result) {
       if (result === true) {
-        const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-        createToken(res, req.body.username, ip);
+        sendToken(req, res);
         res.status(200).json({
           msg: 'Login succcessful',
         });
