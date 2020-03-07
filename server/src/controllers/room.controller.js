@@ -22,6 +22,53 @@ router.get('/roomList', (req, res) => {
 });
 
 /**
+ * Creates a new game room
+ * @param {String} req.bode.roomName - The name of the room to be created
+ */
+router.post('/roomList/create', (req, res) => {
+  database.addRoom(req.tokenInfo.userID, req.body.roomName)
+  .then(() => {
+    sockets.addRoom(req.tokenInfo.userID, req.body.roomName)
+    .then(() => {
+      res.status(200).json({
+        msg: `Room ${req.body.roomName} created!`
+      });
+    });
+  })
+  .catch((err) => {
+    console.error(err.message);
+    res.status(500).json({
+      msg: err.message
+    });
+  });
+})
+
+/**
+ * Deletes a new game room
+ * @param {String} req.bode.roomName - The name of the room to be deleted
+ */
+router.post('/roomList/delete', (req, res) => {
+  database.removeRoom(req.tokenInfo.userID, req.body.roomName)
+  .then((removed) => {
+    if (!removed) {
+      throw Error(`Couldn't delete room.`);
+    }
+    sockets.removeRoom(req.tokenInfo.userID, req.body.roomName)
+    .then(() => {
+      res.status(200).json({
+        msg: `Room ${req.body.roomName} deleted!`
+      });
+    });
+  })
+  .catch((err) => {
+    console.error(err.message);
+    res.status(500).json({
+      msg: err.message
+    });
+  });
+})
+
+/**
  * Join the specific room.
  * This updates the user's state in the database and sets up the user's socket's room.
  * @param {String} req.params.room - The id of the room you would like to join

@@ -29,13 +29,13 @@ exports.newConnection = (userID, socket) => {
 };
 
 /**
- * Called when a user joins a room through the API.
+ * Called when a user joins a game room through the API.
  * Links the the user with their socket.
  * Leaves the socket's previous room and joins the new room.
  * @param {String} userID - Unique username of the user
  * @param {String} roomName - Unique name of the room to join.
  */
-async function joinRoom(userID, roomName){
+async function joinRoom(userID, roomName) {
   await database.getUser(userID)
   .then((userData) => {
     // leave current room
@@ -54,3 +54,30 @@ async function joinRoom(userID, roomName){
   })
 }
 exports.joinRoom = joinRoom;
+
+
+async function addRoom(userID, roomName) {
+  exports.io.sockets.emit('room_created', userID, roomName);
+}
+exports.addRoom = addRoom;
+
+
+async function removeRoom(userID, roomName) {
+  exports.io.sockets.emit('room_deleted', userID, roomName);
+}
+exports.removeRoom = removeRoom;
+
+
+async function draw(userID, lineData) {
+  // Add new line to database
+  const userData = await database.getUser(userID)
+  database.addLine(userData.currentRoomName, JSON.stringify(lineData))
+  .then(() => {
+    // Emit new line on sockets
+    exports.io.in(userData.currentRoomName).emit('line_drawn', userID, lineData);
+  })
+  .catch((err) => {
+    console.error(err.message);
+  });
+}
+exports.draw = draw;

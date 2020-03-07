@@ -14,6 +14,15 @@ const rooms = sequelize.define('Rooms', {
   name: {
     type: DataTypes.STRING,
     primaryKey: true
+  },
+  owner: {
+    type: DataTypes.STRING,
+    allowNull: true, // TODO: change to false once done testing!
+    // TODO: Add correct foreign key constraint, doing it this ways add a cyclical dependency which sequelize cant handlew
+    /* references: {
+      model: users,
+      key: 'username',
+    } */
   }
 }, {
   // Other model options go here
@@ -134,7 +143,7 @@ exports.getUser = getUser;
 
 async function getRooms() {
   const rows = await rooms.findAll({
-    attributes: ['name']
+    attributes: ['name', 'owner']
   }).catch((err) => {
     throw err;
   })
@@ -157,6 +166,20 @@ async function getRoom(roomName) {
 exports.getRoom = getRoom;
 
 
+async function addRoom(userID, roomName) {
+  await rooms.create({ name: roomName, owner: userID });
+}
+exports.addRoom = addRoom;
+
+
+// TODO: make deletions of rooms cascade into lines
+async function removeRoom(userID, roomName) {
+  const rowsRemoved = await rooms.destroy({ where: { name: roomName, owner: userID } });
+  return rowsRemoved;
+}
+exports.removeRoom = removeRoom;
+
+
 async function getRoomLines(roomName) {
   const rows = await lines.findAll({
     attributes: ['data', 'style'],
@@ -176,3 +199,9 @@ async function joinRoom(userID, roomName) {
   return await getRoomLines(roomName);
 }
 exports.joinRoom = joinRoom;
+
+
+async function addLine(roomName, lineData) {
+  await lines.create({ roomName: roomName, data: lineData , style: null });
+}
+exports.addLine = addLine;

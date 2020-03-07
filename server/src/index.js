@@ -80,6 +80,10 @@ io.use(auth.requireAuthSocket).on('connection', (socket) => {
     console.log(`Socket id=${socket.id} was disconnected`);
   });
 
+  socket.on('draw', (lineInfo) => {
+    sockets.draw(socket.tokenInfo.userID, lineInfo);
+  });
+
   sockets.newConnection(socket.tokenInfo.userID, socket);
 });
 // ------------------------------------------------------------------------------------------------------------------
