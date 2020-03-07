@@ -2,7 +2,7 @@
 
 "use strict";
 
-// #region require dependencies
+// ---------------------------------------------- REQUIRE DEPENDENCIES ----------------------------------------------
 require("dotenv").config();
 const betterLogging = require("better-logging");
 // enhances log messages with timestamps etc
@@ -19,21 +19,15 @@ const express = require("express");
 const http = require("http");
 var fs = require("fs");
 const cookieParser = require("cookie-parser");
-// #endregion
-
-// #region setup boilerplate
+// ------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------- SET-UP BOILERPLATE ------------------------------------------------
 console.loglevel = 4; // Enables debug output
 const publicPath = path.join(__dirname, "..", "..", "client", "dist");
 const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
 
 // Express usually does this for us, but socket.io needs the httpServer directly
-var options = {
-  key: fs.readFileSync("keys/key.pem"),
-  cert: fs.readFileSync("keys/cert.pem")
-};
-
-const httpServer = http.Server(options, app);
+const httpServer = http.Server(app);
 const io = require("socket.io").listen(httpServer); // Creates socket.io app
 
 // Setup middlewares
@@ -45,13 +39,7 @@ app.use(
   })
 );
 
-
-
-/*
-This is a middleware that parses the body of the request into a javascript object.
-It's basically just replacing the body property like this:
-req.body = JSON.parse(req.body)
-*/
+// This is a middleware that parses the body of the request into a javascript object.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -71,64 +59,30 @@ io.use(
     saveUninitialized: true
   })
 );
-
-
-// TEMPORARY!!!
-/* const util = require("util");
-app.use((req, res, next) => {
-  var obj_str = util.inspect(req.session.id);
-    console.log('---------------------------- NEW REQUEST -----------------------------------------------------------------');
-    console.log(`HEADERS: ${obj_str}`);
-    console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
-  next();
-}); */
-
-// #endregion
-
-// Bind REST controllers to /api/*
+// ------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------ BIND REST API ---------------------------------------------------
 const auth = require("./controllers/auth.controller.js");
 const room = require("./controllers/room.controller.js");
 
-//const booking = require('./controllers/booking.controller.js');
-//const admin = require('./controllers/admin.controller.js');
-//
-
 app.use("/api", auth.router);
-app.use("/api", room.router);
+app.use("/api", auth.requireAuth, room.router); // TODO: this auth gaurd makes a GET to the login API return unauthorized!
+// ------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------ SET-UP SOCKETS --------------------------------------------------
+// Init sockets
+const sockets = require("./sockets.js");
+sockets.init({ io });
 
-//app.use('/api', booking.router);
-//app.use('/api', admin.router);
-
-// Init model
-const database = require("./database");
-database.init({ io });
-
-/* const util = require("util");
-io.use((socket, next) => {
-  var obj_str = util.inspect(socket);
-  console.log('---------------------------- NEW SOCKET REQUEST -----------------------------------------------------------------');
-  console.log(`SOCKET: ${obj_str}`);
-  console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
-  next();
-}); */
-
-// Handle connected socket.io sockets
-// TODO: Handle too many socket requests
-// TODO: Handle sockets closing? => remove connections from database
+// Handle connected socket.io sockets and add authentication gaurd
 io.use(auth.requireAuthSocket).on('connection', (socket) => {
   console.log(`New socket id=${socket.id}, user=${socket.tokenInfo.userID}, session=${socket.tokenInfo.sessionID}`);
-  // TODO: update database with connection
 
-
-  socket.on("join_room", room => {
-    console.log('TRYING');
-    socket.join(room, () => {
-      console.log(`Socket ${socket.id} joined room: ${room}`);
-      io.in(room).emit("user_joined", "A new user joined the room");
-    });
+  socket.on('disconnect', (reason) => {
+    console.log(`Socket id=${socket.id} was disconnected`);
   });
-});
 
+  sockets.newConnection(socket.tokenInfo.userID, socket);
+});
+// ------------------------------------------------------------------------------------------------------------------
 // Start server
 httpServer.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);

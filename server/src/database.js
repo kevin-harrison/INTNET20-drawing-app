@@ -28,10 +28,6 @@ const users = sequelize.define('Users', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  sessionID: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
   currentRoomName: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -74,7 +70,6 @@ async function initDatabase() {
     await users.sync({ force: true });
     await rooms.sync({ force: true });
     await sequelize.authenticate();
-
 
     // TEMPORARY EXAMPLE DATA
     await rooms.create({ name: 'Room1' });
@@ -124,23 +119,18 @@ async function checkLogin(username, password) {
 exports.checkLogin = checkLogin;
 
 
-/* Check for user in database */
-async function findUser(username) {
-  const rows = await users.findAll({
-    attributes: ['username'],
+async function getUser(username) {
+  const row = await users.findOne({
     where: {
       username: username
     }
   }).catch((err) => {
     throw err;
   });
-
-  if (rows[0] !== undefined) {
-    return true;
-  }
-  return false;
+  return row;
 }
-exports.findUser = findUser;
+exports.getUser = getUser;
+
 
 async function getRooms() {
   const rows = await rooms.findAll({
@@ -152,7 +142,22 @@ async function getRooms() {
 }
 exports.getRooms = getRooms;
 
+
 async function getRoom(roomName) {
+  const row = await rooms.findOne({
+    attributes: ['name'],
+    where: {
+      name: roomName
+    }
+  }).catch((err) => {
+    throw err;
+  });
+  return row;
+}
+exports.getRoom = getRoom;
+
+
+async function getRoomLines(roomName) {
   const rows = await lines.findAll({
     attributes: ['data', 'style'],
     where: {
@@ -164,47 +169,10 @@ async function getRoom(roomName) {
 
   return rows;
 }
-exports.getRoom = getRoom;
 
-async function findRoom(roomName) {
-  const rows = await rooms.findAll({
-    attributes: ['name'],
-    where: {
-      name: roomName
-    }
-  }).catch((err) => {
-    throw err;
-  });
 
-  if (rows[0] !== undefined) {
-    return true;
-  }
-  return false;
+async function joinRoom(userID, roomName) {
+  await users.update({ currentRoomName: roomName }, {where: { username: userID}})
+  return await getRoomLines(roomName);
 }
-exports.findRoom = findRoom;
-
-
-// ------------------------------------------- SOCKET COMMUNICATION -------------------------------------------
-// Will be initialized in the exports.init function
-exports.io = undefined;
-
-/**
- * Initialize the model
- * @param { { io: SocketIO.Server} } config - The configurations needed to initialize the model.
- * @returns {void}
- */
-exports.init = ({ io }) => {
-  exports.io = io;
-};
-
-/**
- * Called when a user joins a room
- * @param {String} roomName - The name of the room to add the message to.
- * @returns {void}
- */
-exports.joinRoom = (roomName) => {
-  /* exports.findRoom(roomName).addMessage(message); */
-  exports.io.in(roomName).emit('userJoined', "A new user has joined the room");
-};
-// -------------------------------------------------------------------------------------------------------------
-
+exports.joinRoom = joinRoom;
