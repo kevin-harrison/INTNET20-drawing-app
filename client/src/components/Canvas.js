@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Dropdown from "./Dropdown";
 
 export default class Canvas extends Component {
   constructor(props) {
@@ -16,7 +17,7 @@ export default class Canvas extends Component {
       console.log(`${userID} drew ${JSON.stringify(lineData, null, 2)}`);
 
       // Draws the line point by point
-      lineData.forEach((position) => {
+      lineData.forEach(position => {
         this.paint(position.start, position.stop, this.guestStrokeStyle);
       });
     });
@@ -86,6 +87,7 @@ export default class Canvas extends Component {
       };
       // Add the position to the line array
       this.line = this.line.concat(positionData);
+      console.log(this.userStrokeStyle);
       this.paint(this.prevPos, offSetData, this.userStrokeStyle);
       /* this.props.socket.emit("draw", {
         room: this.props.roomName,
@@ -119,7 +121,7 @@ export default class Canvas extends Component {
       line: this.line,
       userId: this.userId
     };
-    console.log('emitting');
+    console.log("emitting");
     this.props.socket.emit("draw", this.line);
     /* 
     // We use the native fetch API to make requests to the server
@@ -133,9 +135,15 @@ export default class Canvas extends Component {
     const res = await req.json(); */
     this.line = [];
   }
+  // Used to resize te canvas and set it up for the right size
   resizeCanvas() {
     this.canvas.width = document.documentElement.clientWidth;
     this.canvas.height = document.documentElement.clientHeight;
+  }
+
+  // Used in the dropdown menu to set the line style
+  setStrokeStyle(color) {
+    this.userStrokeStyle = color;
   }
 
   componentDidMount() {
@@ -151,18 +159,30 @@ export default class Canvas extends Component {
 
   render() {
     return (
-      <canvas
-        // We use the ref attribute to get direct access to the canvas element.
-        ref={ref => (this.canvas = ref)}
-        style={style.canvas}
-        onMouseDown={this.onMouseDown}
-        onMouseMove={this.onMouseMove}
-        onMouseLeave={this.endPaintEvent}
-        onMouseUp={this.endPaintEvent}
-        onTouchStart={this.onMouseDown}
-        onTouchMove={this.onMouseMove}
-        onTouchEnd={this.endPaintEvent}
-      />
+      <div>
+        <canvas
+          // We use the ref attribute to get direct access to the canvas element.
+          ref={ref => (this.canvas = ref)}
+          style={style.canvas}
+          onMouseDown={this.onMouseDown}
+          onMouseMove={this.onMouseMove}
+          onMouseLeave={this.endPaintEvent}
+          onMouseUp={this.endPaintEvent}
+          onTouchStart={this.onMouseDown}
+          onTouchMove={this.onMouseMove}
+          onTouchEnd={this.endPaintEvent}
+        />
+        <div style={style.dropdownArea}>
+          <Dropdown
+            name="Color"
+            options={[
+              { name: "Red", func: () => this.setStrokeStyle("#CC0000")},
+              { name: "Green", func: () => this.setStrokeStyle("#00CC00")},
+              { name: "Blue", func: () => this.setStrokeStyle("#0000CC")}
+            ]}
+          />
+        </div>
+      </div>
     );
   }
 }
@@ -173,5 +193,12 @@ const style = {
     width: "100vw",
     height: "100vh",
     touchAction: "none"
+  },
+  dropdownArea: {
+    position: "absolute",
+    top: "6vh",
+    right: "0",
+    display: "flex",
+    flexDirection: "column"
   }
 };
