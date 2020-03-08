@@ -103,12 +103,18 @@ io.on("connection", socket => {
   console.log(`New socket ID: ${socket.id}`);
 
   socket.on("join_room", room => {
-    console.log('TRYING');
+    /* Join room uses a callback function, as shown here in the arrow function */
     socket.join(room, () => {
       console.log(`Socket ${socket.id} joined room: ${room}`);
       io.in(room).emit("user_joined", "A new user joined the room");
     });
   });
+
+  socket.on("draw", (data) => {
+    console.log('Received draw emit in backend');
+    io.in(data.room).emit("draw", data);
+  });
+
 });
 
 app.get("/home", auth.requireAuth, (req, res) => {

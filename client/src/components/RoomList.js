@@ -8,17 +8,17 @@ class RoomList extends Component {
     rooms: [
       {
         id: 1,
-        name: "Room1",
+        name: "Room 1",
         available: true
       },
       {
         id: 2,
-        name: "Room2",
+        name: "Room 2",
         available: false
       },
       {
         id: 3,
-        name: "Room3",
+        name: "Room 3",
         available: true
       }
     ]

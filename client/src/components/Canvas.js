@@ -11,10 +11,11 @@ export default class Canvas extends Component {
       console.log(msg);
     });
 
-    console.log(this.props.socket);
-
+    /* Message to other sockets that new user has joined the room */
     this.props.socket.emit("join_room", this.props.roomName);
 
+
+    /* TODO Links a socket to a room in the database */
     fetch(`/api/room/${this.props.roomName}/join`)
     .then((resp) => {
       if (!resp.ok) {
@@ -23,11 +24,12 @@ export default class Canvas extends Component {
       return resp.json();
     })
     .catch(console.error)
-    /* .then((data) => {
-      this.entries = data.list;
-    }); */
 
-
+    /* Receive drawing data from other sockets */
+    this.props.socket.on('draw', (data) => {
+      console.log(data);
+      this.paint(data.prevPos, data.offSetData, this.guestStrokeStyle);
+    });
 
   }
   isPainting = false;
@@ -66,6 +68,7 @@ export default class Canvas extends Component {
       // Add the position to the line array
       this.line = this.line.concat(positionData);
       this.paint(this.prevPos, offSetData, this.userStrokeStyle);
+      this.props.socket.emit("draw", {room: this.props.roomName, prevPos: this.prevPos, offsetData: offSetData});
     }
   }
   endPaintEvent() {
