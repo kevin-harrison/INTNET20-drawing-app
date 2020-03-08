@@ -7,6 +7,8 @@ export default class Canvas extends Component {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.endPaintEvent = this.endPaintEvent.bind(this);
+    
+    this.clearCanvas = this.clearCanvas.bind(this);
 
     this.props.socket.on("user_joined", msg => {
       console.log(msg);
@@ -145,6 +147,11 @@ export default class Canvas extends Component {
     this.userStrokeStyle = color;
   }
 
+  // Erases al lines on canvas
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
   componentDidMount() {
     // Here we set up the properties of the canvas element.
     /* Sets the correct canvas dimensions depending on the screen */
@@ -180,6 +187,7 @@ export default class Canvas extends Component {
               { name: "Blue", func: () => this.setStrokeStyle("#0000CC")}
             ]}
           />
+          <button onClick={this.clearCanvas} style={style.clearButton}>Clear</button>
         </div>
       </div>
     );
@@ -196,8 +204,22 @@ const style = {
   dropdownArea: {
     position: "absolute",
     top: "6vh",
-    right: "0",
+    right: "2vw",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    fontFamily: "Doodle",
+  },
+  clearButton: {
+    width: "20vw",
+    background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 44, 0))",
+    borderRadius: "10px",
+    height: "24px",
+    border: "1px solid aliceblue",
+    boxShadow: "1px 1px 1px 1px rgba(0,0,0,0.4)",
+    cursor: "pointer",
+    marginBottom: "2px",
+    fontFamily: "Doodle",
+    fontSize: "20px",
+    letterSpacing: "2px"
   }
 };

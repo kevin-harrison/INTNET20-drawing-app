@@ -40,28 +40,38 @@ export default class Dropdown extends Component {
             }}
           >
             {this.props.options.map(option => (
-              <button
-                key={option.name}
-                onClick={option.func}
-              >
+              <button style={style.button} key={option.name} onClick={option.func}>
                 {option.name}
               </button>
             ))}
           </div>
         ) : null}
 
-        <button onClick={this.showMenu}>{this.props.name}</button>
+        <button style={style.button} onClick={this.showMenu}>{this.props.name}</button>
       </div>
     );
   }
 }
 
 const style = {
+  button: {
+    width: "20vw",
+    background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 220, 0))",
+    borderRadius: "10px",
+    height: "24px",
+    border: "1px solid aliceblue",
+    boxShadow: "1px 1px 1px 1px rgba(0,0,0,0.4)",
+    cursor: "pointer",
+    marginBottom: "2px",
+    fontFamily: "Doodle",
+    fontSize: "20px",
+    letterSpacing: "2px"
+  },
   menu: {
     display: "inline-flex",
     flexDirection: "column",
     position: "absolute",
-    right: "15vw",
+    right: "26vw",
     width: "15vw"
   }
 };

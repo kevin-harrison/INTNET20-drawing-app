@@ -71,11 +71,9 @@ exports.removeRoom = removeRoom;
 async function draw(userID, lineData) {
   // Add new line to database
   const userData = await database.getUser(userID)
+  // Emit new line on sockets. Doing this outside of database actions to prevent delay
+  sockets[userID].to(userData.currentRoomName).emit('line_drawn', userID, lineData);
   database.addLine(userData.currentRoomName, JSON.stringify(lineData))
-  .then(() => {
-    // Emit new line on sockets
-    exports.io.in(userData.currentRoomName).emit('line_drawn', userID, lineData);
-  })
   .catch((err) => {
     console.error(err.message);
   });
