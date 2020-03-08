@@ -81,11 +81,11 @@ async function initDatabase() {
     await sequelize.authenticate();
 
     // TEMPORARY EXAMPLE DATA
-    await rooms.create({ name: 'Room1' });
-    await rooms.create({ name: 'Room2' });
-    await lines.create({ roomName: 'Room1', data: '{ Line Object }' , style: null });
-    await lines.create({ roomName: 'Room1', data: '{ Line Object }' , style: null });
-    await lines.create({ roomName: 'Room2', data: '{ Line Object }' , style: null });
+    await rooms.create({ name: 'Room 1' });
+    await rooms.create({ name: 'Room 2' });
+    await lines.create({ roomName: 'Room 1', data: '{ Line Object }' , style: null });
+    await lines.create({ roomName: 'Room 1', data: '{ Line Object }' , style: null });
+    await lines.create({ roomName: 'Room 2', data: '{ Line Object }' , style: null });
 
     console.log('Database created successfuly.');
   } catch (error) {

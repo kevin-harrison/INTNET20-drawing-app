@@ -7,19 +7,25 @@ export default class Canvas extends Component {
     this.onMouseMove = this.onMouseMove.bind(this);
     this.endPaintEvent = this.endPaintEvent.bind(this);
 
-    this.props.socket.on('user_joined', (msg) => {
+    this.props.socket.on("user_joined", msg => {
       console.log(msg);
     });
 
-    this.props.socket.on('line_drawn', (userID, lineData) => {
-      console.log(`${userID} drew ${lineData}`);
+    // Receive drawing data from other sockets
+    this.props.socket.on("line_drawn", (userID, lineData) => {
+      console.log(`${userID} drew ${JSON.stringify(lineData, null, 2)}`);
+
+      // Draws the line point by point
+      lineData.forEach((position) => {
+        this.paint(position.start, position.stop, this.guestStrokeStyle);
+      });
     });
 
-    this.props.socket.on('room_created', (userID, roomName) => {
+    this.props.socket.on("room_created", (userID, roomName) => {
       console.log(`${userID} created room ${roomName}`);
     });
 
-    this.props.socket.on('room_deleted', (userID, roomName) => {
+    this.props.socket.on("room_deleted", (userID, roomName) => {
       console.log(`${userID} deleted room ${roomName}`);
     });
 
@@ -27,23 +33,23 @@ export default class Canvas extends Component {
 
     this.props.socket.emit("join_room", this.props.roomName);
 
-
-    /* TODO Links a socket to a room in the database */
+    // Links a socket to a room in the database
     fetch(`/api/room/${this.props.roomName}/join`)
-    .then((resp) => {
-      if (!resp.ok) {
-        throw new Error(`Unexpected failure when joining room: ${this.props.roomName}`);
-      }
-      return resp.json();
-    })
-    .catch(console.error)
+      .then(resp => {
+        if (!resp.ok) {
+          throw new Error(
+            `Unexpected failure when joining room: ${this.props.roomName}`
+          );
+        }
+        return resp.json();
+      })
+      .catch(console.error);
 
-    /* Receive drawing data from other sockets */
-    this.props.socket.on('draw', (data) => {
+    // Receive drawing data from other sockets
+    this.props.socket.on("draw", data => {
       console.log(data);
       this.paint(data.prevPos, data.offSetData, this.guestStrokeStyle);
     });
-
   }
   isPainting = false;
   // Different stroke styles to be used for user and guest
@@ -81,7 +87,11 @@ export default class Canvas extends Component {
       // Add the position to the line array
       this.line = this.line.concat(positionData);
       this.paint(this.prevPos, offSetData, this.userStrokeStyle);
-      this.props.socket.emit("draw", {room: this.props.roomName, prevPos: this.prevPos, offsetData: offSetData});
+      /* this.props.socket.emit("draw", {
+        room: this.props.roomName,
+        prevPos: this.prevPos,
+        offsetData: offSetData
+      }); */
     }
   }
   endPaintEvent() {
@@ -107,7 +117,7 @@ export default class Canvas extends Component {
   async sendPaintData() {
     const body = {
       line: this.line,
-      userId: this.userId,
+      userId: this.userId
     };
     console.log('emitting');
     this.props.socket.emit("draw", this.line);
