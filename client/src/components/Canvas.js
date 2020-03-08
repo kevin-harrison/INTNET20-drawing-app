@@ -11,7 +11,20 @@ export default class Canvas extends Component {
       console.log(msg);
     });
 
-    /* Message to other sockets that new user has joined the room */
+    this.props.socket.on('line_drawn', (userID, lineData) => {
+      console.log(`${userID} drew ${lineData}`);
+    });
+
+    this.props.socket.on('room_created', (userID, roomName) => {
+      console.log(`${userID} created room ${roomName}`);
+    });
+
+    this.props.socket.on('room_deleted', (userID, roomName) => {
+      console.log(`${userID} deleted room ${roomName}`);
+    });
+
+    console.log(this.props.socket);
+
     this.props.socket.emit("join_room", this.props.roomName);
 
 
@@ -74,7 +87,7 @@ export default class Canvas extends Component {
   endPaintEvent() {
     if (this.isPainting) {
       this.isPainting = false;
-      /* this.sendPaintData(); */
+      this.sendPaintData();
     }
   }
   paint(prevPos, currPos, strokeStyle) {
@@ -96,7 +109,8 @@ export default class Canvas extends Component {
       line: this.line,
       userId: this.userId,
     };
-    
+    console.log('emitting');
+    this.props.socket.emit("draw", this.line);
     /* 
     // We use the native fetch API to make requests to the server
     const req = await fetch('http://localhost:4000/paint', {
