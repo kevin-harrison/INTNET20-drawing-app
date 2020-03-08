@@ -31,7 +31,6 @@ export default class Dropdown extends Component {
   render() {
     return (
       <div>
-        {console.log(this.props.options)}
         {this.state.showMenu ? (
           <div
             className="menu"

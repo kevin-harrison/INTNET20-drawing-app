@@ -87,7 +87,6 @@ export default class Canvas extends Component {
       };
       // Add the position to the line array
       this.line = this.line.concat(positionData);
-      console.log(this.userStrokeStyle);
       this.paint(this.prevPos, offSetData, this.userStrokeStyle);
       /* this.props.socket.emit("draw", {
         room: this.props.roomName,
