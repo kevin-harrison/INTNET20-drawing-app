@@ -1,14 +1,24 @@
 import React, { Component } from "react";
 import Canvas from "../components/Canvas";
+import backbuttonimg from "../img/backbutton.png";
 
 export default class RoomPage extends Component {
   render() {
     return (
       <div style={style.container}>
-      <header style={style.header}>
-        {this.props.match.params.roomName}
-      </header>
-      <Canvas roomName={this.props.match.params.roomName}  socket={this.props.socket}/>
+        <header style={style.header}>
+          <div style={style.backbutton} onClick={() => {this.props.history.push("/rooms")}}></div>
+          <div
+            style={style.roomname}
+            
+          >
+            {this.props.match.params.roomName}
+          </div>
+        </header>
+        <Canvas
+          roomName={this.props.match.params.roomName}
+          socket={this.props.socket}
+        />
       </div>
     );
   }
@@ -17,7 +27,7 @@ export default class RoomPage extends Component {
 const style = {
   container: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   header: {
     position: "absolute",
@@ -33,4 +43,14 @@ const style = {
     fontSize: "25px",
     fontWeight: "bold"
   },
-}
+  backbutton: {
+    backgroundImage: `url(${backbuttonimg})`,
+    backgroundSize: "34px",
+    width: "34px",
+    height: "34px",
+    marginLeft: "2vw"
+  },
+  roomname: {
+    margin: "auto"
+  }
+};

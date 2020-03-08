@@ -62,7 +62,7 @@ class RoomList extends Component {
       fontSize: "25px",
       fontWeight: "bold",
       color: "#000",
-      background: "linear-gradient(0deg, #FF4E50, #F9D423)"
+      background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 220, 0))",
     }
   };
 }
