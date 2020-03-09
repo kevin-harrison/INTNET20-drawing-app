@@ -7,20 +7,31 @@ export default class Canvas extends Component {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.endPaintEvent = this.endPaintEvent.bind(this);
-    
+
     this.clearCanvas = this.clearCanvas.bind(this);
 
-    this.props.socket.on("user_joined", msg => {
-      console.log(msg);
+    this.props.socket.on("user_joined", userName => {
+      console.log(`${userName} has joined the room`);
+      this.state.members.push(userName);
+      console.log( this.state.members);
+      this.updateMembers();
+    });
+
+    this.props.socket.on("user_left", userName => {
+      const index = this.state.members.indexOf(userName);
+      if (index > -1) {
+        this.state.members.splice(index, 1);
+        this.updateMembers();
+      }
     });
 
     // Receive drawing data from other sockets
-    this.props.socket.on("line_drawn", (userID, lineData) => {
+    this.props.socket.on("line_drawn", (userID, lineData, style) => {
       console.log(`${userID} drew ${JSON.stringify(lineData, null, 2)}`);
 
       // Draws the line point by point
       lineData.forEach(position => {
-        this.paint(position.start, position.stop, this.guestStrokeStyle);
+        this.paint(position.start, position.stop, this.style);
       });
     });
 
@@ -32,11 +43,9 @@ export default class Canvas extends Component {
       console.log(`${userID} deleted room ${roomName}`);
     });
 
-    console.log(this.props.socket);
-
     this.props.socket.emit("join_room", this.props.roomName);
 
-    // Links a socket to a room in the database
+    // Notifies other people of new user in room and gets line data from database
     fetch(`/api/room/${this.props.roomName}/join`)
       .then(resp => {
         if (!resp.ok) {
@@ -44,20 +53,33 @@ export default class Canvas extends Component {
             `Unexpected failure when joining room: ${this.props.roomName}`
           );
         }
-        return resp.json();
+        // Draw room using the line data
+        // (Resp has returned a promise which is resolved here)
+        resp.json().then(promiseValue => {
+          promiseValue.lines.forEach(line => {
+            let lineData = JSON.parse(line.data);
+            lineData.forEach(position => {
+              this.paint(position.start, position.stop, line.style);
+            });
+          });
+        });
       })
       .catch(console.error);
+  } // End of constructor
 
-    // Receive drawing data from other sockets
-    this.props.socket.on("draw", data => {
-      console.log(data);
-      this.paint(data.prevPos, data.offSetData, this.guestStrokeStyle);
+  // Used for pdating the list of members on the page
+  updateMembers() {
+    let members = "";
+    this.state.members.forEach((member) => {
+      members += `<div>${member}</div>`
     });
+    this.memberlist.innerHTML = members;
   }
+
+
   isPainting = false;
   // Different stroke styles to be used for user and guest
-  userStrokeStyle = "#EE92C2";
-  guestStrokeStyle = "#F0C987";
+  strokeStyle = "#CC0000";
   line = [];
   /* // v4 creates a unique id for each user. We used this since there's no auth to tell users apart
   userId = v4(); */
@@ -89,12 +111,7 @@ export default class Canvas extends Component {
       };
       // Add the position to the line array
       this.line = this.line.concat(positionData);
-      this.paint(this.prevPos, offSetData, this.userStrokeStyle);
-      /* this.props.socket.emit("draw", {
-        room: this.props.roomName,
-        prevPos: this.prevPos,
-        offsetData: offSetData
-      }); */
+      this.paint(this.prevPos, offSetData, this.strokeStyle);
     }
   }
   endPaintEvent() {
@@ -118,12 +135,8 @@ export default class Canvas extends Component {
     this.prevPos = { offsetX, offsetY };
   }
   async sendPaintData() {
-    const body = {
-      line: this.line,
-      userId: this.userId
-    };
     console.log("emitting");
-    this.props.socket.emit("draw", this.line);
+    this.props.socket.emit("draw", this.line, this.strokeStyle);
     /* 
     // We use the native fetch API to make requests to the server
     const req = await fetch('http://localhost:4000/paint', {
@@ -144,7 +157,7 @@ export default class Canvas extends Component {
 
   // Used in the dropdown menu to set the line style
   setStrokeStyle(color) {
-    this.userStrokeStyle = color;
+    this.strokeStyle = color;
   }
 
   // Erases al lines on canvas
@@ -163,6 +176,9 @@ export default class Canvas extends Component {
     window.addEventListener("resize", this.resizeCanvas());
   }
 
+  state = {
+    members: []
+  };
   render() {
     return (
       <div>
@@ -178,16 +194,48 @@ export default class Canvas extends Component {
           onTouchMove={this.onMouseMove}
           onTouchEnd={this.endPaintEvent}
         />
+        <div ref={ref => (this.memberlist = ref)}
+        style={style.memberList}>
+        </div>
         <div style={style.dropdownArea}>
           <Dropdown
             name="Color"
             options={[
-              { name: "Red", func: () => this.setStrokeStyle("#CC0000")},
-              { name: "Green", func: () => this.setStrokeStyle("#00CC00")},
-              { name: "Blue", func: () => this.setStrokeStyle("#0000CC")}
+              {
+                name: "Red",
+                func: () => this.setStrokeStyle("#CC0000"),
+                color: "#CC0000"
+              },
+              {
+                name: "Yellow",
+                func: () => this.setStrokeStyle("#CCCC00"),
+                color: "#CCCC00"
+              },
+              {
+                name: "Green",
+                func: () => this.setStrokeStyle("#00CC00"),
+                color: "#00CC00"
+              },
+              {
+                name: "Teal",
+                func: () => this.setStrokeStyle("#00CCCC"),
+                color: "#00CCCC"
+              },
+              {
+                name: "Blue",
+                func: () => this.setStrokeStyle("#0000CC"),
+                color: "#0000CC"
+              },
+              {
+                name: "Purple",
+                func: () => this.setStrokeStyle("#CC00CC"),
+                color: "#CC00CC"
+              }
             ]}
           />
-          <button onClick={this.clearCanvas} style={style.clearButton}>Clear</button>
+          <button onClick={this.clearCanvas} style={style.clearButton}>
+            Clear
+          </button>
         </div>
       </div>
     );
@@ -201,19 +249,27 @@ const style = {
     height: "100vh",
     touchAction: "none"
   },
+  memberList: {
+    position: "absolute",
+    top: "6vh",
+    left: "2vw",
+    display: "flex",
+    flexDirection: "column",
+    fontFamily: "Doodle"
+  },
   dropdownArea: {
     position: "absolute",
     top: "6vh",
     right: "2vw",
     display: "flex",
     flexDirection: "column",
-    fontFamily: "Doodle",
+    fontFamily: "Doodle"
   },
   clearButton: {
-    width: "20vw",
+    width: "30vw",
     background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 44, 0))",
     borderRadius: "10px",
-    height: "24px",
+    height: "5vh",
     border: "1px solid aliceblue",
     boxShadow: "1px 1px 1px 1px rgba(0,0,0,0.4)",
     cursor: "pointer",

@@ -32,20 +32,21 @@ exports.newConnection = (userID, socket) => {
  * Called when a user joins a game room through the API.
  * Links the the user with their socket.
  * Leaves the socket's previous room and joins the new room.
- * @param {String} userID - Unique username of the user
+ * @param {String} userName - Unique username of the user
  * @param {String} roomName - Unique name of the room to join.
  */
-async function joinRoom(userID, roomName) {
-  await database.getUser(userID)
+async function joinRoom(userName, roomName) {
+  await database.getUser(userName)
   .then((userData) => {
     // leave current room
     try{
-      sockets[userID].leave(userData.currentRoomName, () => {
-        console.log(`${userID} left room ${userData.currentRoomName}`);
+      sockets[userName].leave(userData.currentRoomName, () => {
+        console.log(`${userName} left room ${userData.currentRoomName}`);
+        exports.io.in(userData.currentRoomName).emit('user_left', userName);
         // join new room
-        sockets[userID].join(roomName, () => {
-          console.log(`${userID} joined room ${roomName}`);
-          exports.io.in(roomName).emit('user_joined', `${userID} has joined ${roomName}`);
+        sockets[userName].join(roomName, () => {
+          console.log(`${userName} joined room ${roomName}`);
+          exports.io.in(roomName).emit('user_joined', userName);
         });
       });
     } catch(err) {
@@ -68,12 +69,12 @@ async function removeRoom(userID, roomName) {
 exports.removeRoom = removeRoom;
 
 
-async function draw(userID, lineData) {
+async function draw(userID, lineData, style) {
   // Add new line to database
   const userData = await database.getUser(userID)
   // Emit new line on sockets. Doing this outside of database actions to prevent delay
-  sockets[userID].to(userData.currentRoomName).emit('line_drawn', userID, lineData);
-  database.addLine(userData.currentRoomName, JSON.stringify(lineData))
+  sockets[userID].to(userData.currentRoomName).emit('line_drawn', userID, lineData, style);
+  database.addLine(userData.currentRoomName, JSON.stringify(lineData), style)
   .catch((err) => {
     console.error(err.message);
   });

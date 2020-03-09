@@ -21,7 +21,10 @@ export default class Dropdown extends Component {
   }
 
   closeMenu(event) {
-    if (this.dropdownMenu === null || !this.dropdownMenu.contains(event.target)) {
+    if (
+      this.dropdownMenu === null ||
+      !this.dropdownMenu.contains(event.target)
+    ) {
       this.setState({ showMenu: false }, () => {
         document.removeEventListener("click", this.closeMenu);
       });
@@ -40,14 +43,22 @@ export default class Dropdown extends Component {
             }}
           >
             {this.props.options.map(option => (
-              <button style={style.button} key={option.name} onClick={option.func}>
+              <button
+                style={Object.assign({}, style.button, {
+                  background: `linear-gradient(0deg, rgb(250, 250, 250), ${option.color})`
+                })}
+                key={option.name}
+                onClick={option.func}
+              >
                 {option.name}
               </button>
             ))}
           </div>
         ) : null}
 
-        <button style={style.button} onClick={this.showMenu}>{this.props.name}</button>
+        <button style={style.button} onClick={this.showMenu}>
+          {this.props.name}
+        </button>
       </div>
     );
   }
@@ -55,10 +66,10 @@ export default class Dropdown extends Component {
 
 const style = {
   button: {
-    width: "20vw",
-    background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 220, 0))",
+    width: "30vw",
     borderRadius: "10px",
-    height: "24px",
+    height: "5vh",
+    background: "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)",
     border: "1px solid aliceblue",
     boxShadow: "1px 1px 1px 1px rgba(0,0,0,0.4)",
     cursor: "pointer",
@@ -71,7 +82,7 @@ const style = {
     display: "inline-flex",
     flexDirection: "column",
     position: "absolute",
-    right: "26vw",
+    right: "46vw",
     width: "15vw"
   }
 };

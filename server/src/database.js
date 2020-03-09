@@ -83,9 +83,6 @@ async function initDatabase() {
     // TEMPORARY EXAMPLE DATA
     await rooms.create({ name: 'Room 1' });
     await rooms.create({ name: 'Room 2' });
-    await lines.create({ roomName: 'Room 1', data: '{ Line Object }' , style: null });
-    await lines.create({ roomName: 'Room 1', data: '{ Line Object }' , style: null });
-    await lines.create({ roomName: 'Room 2', data: '{ Line Object }' , style: null });
 
     console.log('Database created successfuly.');
   } catch (error) {
@@ -201,7 +198,7 @@ async function joinRoom(userID, roomName) {
 exports.joinRoom = joinRoom;
 
 
-async function addLine(roomName, lineData) {
-  await lines.create({ roomName: roomName, data: lineData , style: null });
+async function addLine(roomName, lineData, style) {
+  await lines.create({ roomName: roomName, data: lineData , style: style });
 }
 exports.addLine = addLine;

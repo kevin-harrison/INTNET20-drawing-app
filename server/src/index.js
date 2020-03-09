@@ -76,20 +76,12 @@ sockets.init({ io });
 io.use(auth.requireAuthSocket).on('connection', (socket) => {
   console.log(`New socket id=${socket.id}, user=${socket.tokenInfo.userID}, session=${socket.tokenInfo.sessionID}`);
 
-  socket.on("join_room", room => {
-    /* Join room uses a callback function, as shown here in the arrow function */
-    socket.join(room, () => {
-      console.log(`Socket ${socket.id} joined room: ${room}`);
-      io.in(room).emit("user_joined", "A new user joined the room");
-    });
-  });
-
   socket.on('disconnect', (reason) => {
     console.log(`Socket id=${socket.id} was disconnected`);
   });
 
-  socket.on('draw', (lineInfo) => {
-    sockets.draw(socket.tokenInfo.userID, lineInfo);
+  socket.on('draw', (lineInfo, style) => {
+    sockets.draw(socket.tokenInfo.userID, lineInfo, style);
   });
 
   sockets.newConnection(socket.tokenInfo.userID, socket);

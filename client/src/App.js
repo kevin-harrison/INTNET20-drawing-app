@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect
 } from "react-router-dom";
 import "./App.css";
 import RoomList from "./components/RoomList";
@@ -38,10 +37,14 @@ class App extends Component {
             <Switch>
               <Route
                 path="/rooms"
+                // TODO Auth works but doesnt send socket data
+                /* component={withAuth(RoomList)} */
                 render={props => <RoomList {...props} socket={this.state.data.socket} />}
               />
               <Route
                 path="/room/:roomName"
+                // TODO Auth works but doesnt send socket data
+                /* component={withAuth(RoomPage)} */
                 render={props => <RoomPage {...props} socket={this.state.data.socket} />}
               />
               {/* The '/' route needs to be at the bottom in order to catch all other routes
