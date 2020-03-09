@@ -5,33 +5,51 @@ import { withRouter } from "react-router-dom";
 class RoomList extends Component {
   state = {
     data: null,
-    rooms: [
-      {
-        id: 1,
-        name: "Room 1",
-        available: true
-      },
-      {
-        id: 2,
-        name: "Room 2",
-        available: false
-      },
-      {
-        id: 3,
-        name: "Room 3",
-        available: true
-      }
-    ]
+    rooms: null
   };
+
+  componentWillMount() {
+    this.setRooms();
+  }
+
+  async setRooms() {
+    const resp = await fetch("/api/roomList");
+    const promiseValue = await resp.json();
+    this.setState({ data: null, rooms: promiseValue.roomList });
+  }
+
+  getRooms() {
+    this.setRooms().then(() => {
+      console.log(this.state.rooms);
+      console.log(this.state.rooms[0]);
+      return this.state.rooms.map(room => (
+        <Room
+          key={room.name}
+          name={room.name}
+          available={room.available}
+          socket={this.props.socket}
+        />
+      ));
+    });
+  }
+
   render() {
-    console.log(this.props);
     return (
       <div className="center">
         <div style={this.style.roomHeader}>ROOMS</div>
         <div style={this.style.roomBox}>
-          {this.state.rooms.map(room => (
-            <Room key={room.id} name={room.name} available={room.available} socket={this.props.socket}/>
-          ))}
+          {this.state.rooms ? (
+            this.state.rooms.map(room => (
+              <Room
+                key={room.name}
+                name={room.name}
+                available={room.available}
+                socket={this.props.socket}
+              />
+            ))
+          ) : (
+            "Loading"
+          )}
         </div>
       </div>
     );
@@ -63,7 +81,7 @@ class RoomList extends Component {
       fontSize: "25px",
       fontWeight: "bold",
       color: "#000",
-      background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 220, 0))",
+      background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 220, 0))"
     }
   };
 }
