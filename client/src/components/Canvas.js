@@ -48,8 +48,6 @@ export default class Canvas extends Component {
       console.log(`${userID} cleared the room.`);
     });
 
-    this.props.socket.emit("join_room", this.props.roomName);
-
     // Notifies other people of new user in room and gets line data from database
     fetch(`/api/room/${this.props.roomName}/join`)
       .then(resp => {
