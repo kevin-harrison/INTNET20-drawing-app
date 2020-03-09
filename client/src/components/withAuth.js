@@ -26,7 +26,6 @@ export default function withAuth(ComponentToProtect, getSocket) {
         });
     }
     render() {
-      console.log(`In withAuth ${getSocket()}`);
       const { loading, redirect } = this.state;
       if (loading) {
         return null;

@@ -15,16 +15,13 @@ class App extends Component {
 
   setSocket = socket => {
     this.state.socket = socket;
-    console.log(`In setSocket ${this.state.socket}`);
   };
 
   getSocket = () => {
-    console.log(`In GETSocket ${this.state.socket}`);
     return this.state.socket;
   };
 
   render() {
-    console.log(this.props);
     return (
       <>
         <Router>
