@@ -84,6 +84,10 @@ io.use(auth.requireAuthSocket).on('connection', (socket) => {
     sockets.draw(socket.tokenInfo.userID, lineInfo, style);
   });
 
+  socket.on('clear', () => {
+    sockets.clear(socket.tokenInfo.userID);
+  });
+
   sockets.newConnection(socket.tokenInfo.userID, socket);
 });
 // ------------------------------------------------------------------------------------------------------------------

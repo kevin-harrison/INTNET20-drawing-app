@@ -59,13 +59,16 @@ exports.joinRoom = joinRoom;
 
 
 async function addRoom(userID, roomName) {
-  exports.io.sockets.emit('room_created', userID, roomName);
+  exports.io.in('roomList').emit('room_created', userID, roomName);
+  //sockets[userID].to('roomList').emit('room_created', userID, roomName);
+  console.log(`${userID} created room ${roomName}`);
 }
 exports.addRoom = addRoom;
 
 
 async function removeRoom(userID, roomName) {
-  exports.io.sockets.emit('room_deleted', userID, roomName);
+  exports.io.in('roomList').emit('room_deleted', userID, roomName);
+  console.log(`${userID} deleted room ${roomName}`);
 }
 exports.removeRoom = removeRoom;
 
@@ -81,3 +84,14 @@ async function draw(userID, lineData, style) {
   });
 }
 exports.draw = draw;
+
+
+async function clear(userID) {
+  const userData = await database.getUser(userID);
+  sockets[userID].to(userData.currentRoomName).emit('clear', userID);
+  database.clearRoom(userData.currentRoomName)
+  .catch((err) => {
+    console.error(err.message);
+  });
+}
+exports.clear = clear;

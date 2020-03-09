@@ -186,14 +186,20 @@ async function getRoomLines(roomName) {
   }).catch((err) => {
     throw err;
   });
-
   return rows;
 }
 
 
 async function joinRoom(userID, roomName) {
   await users.update({ currentRoomName: roomName }, {where: { username: userID}})
-  return await getRoomLines(roomName);
+  const usersInRoom = await users.findAll({
+    attributes: ['username'],
+    where: {
+      currentRoomName: roomName
+    }
+  });
+  const roomLines = await getRoomLines(roomName);
+  return { users: usersInRoom, lineData: roomLines };
 }
 exports.joinRoom = joinRoom;
 
@@ -202,3 +208,9 @@ async function addLine(roomName, lineData, style) {
   await lines.create({ roomName: roomName, data: lineData , style: style });
 }
 exports.addLine = addLine;
+
+
+async function clearRoom(roomName) {
+  lines.destroy({ where: { roomName: roomName } });
+}
+exports.clearRoom = clearRoom;
