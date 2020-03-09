@@ -99,7 +99,7 @@ router.get('/room/:room/join', (req, res) => {
     // Send join event on sockets and change socket room
     sockets.joinRoom(req.tokenInfo.userID, req.params.room)
     .then(() => {
-      // Update database
+      // Update database and get data of the room
       database.joinRoom(req.tokenInfo.userID, req.params.room)
       .then((roomState) => {
         // Send room data
