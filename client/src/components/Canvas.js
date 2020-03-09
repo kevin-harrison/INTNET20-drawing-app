@@ -45,6 +45,11 @@ export default class Canvas extends Component {
       console.log(`${userID} deleted room ${roomName}`);
     });
 
+    this.props.socket.on("clear", (userID) => {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      console.log(`${userID} cleared the room.`);
+    });
+
     this.props.socket.emit("join_room", this.props.roomName);
 
     // Notifies other people of new user in room and gets line data from database
@@ -165,6 +170,7 @@ export default class Canvas extends Component {
   // Erases al lines on canvas
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.props.socket.emit("clear");
   }
 
   componentDidMount() {

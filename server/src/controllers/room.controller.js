@@ -11,12 +11,15 @@ module.exports = { router }
  * Get a list of all the available rooms
  * @returns {void} - Sends a JSON payload whose roomList element has an Array of room objects
  */
-// TODO: Set up sockets to emit new rooms being created or deleted
 router.get('/roomList', (req, res) => {
-  database.getRooms()
-  .then((result) => {
-    res.status(200).json({
-      roomList: result
+  // Send join event on sockets and change socket room
+  sockets.joinRoom(req.tokenInfo.userID, 'roomList')
+  .then(() => {
+    database.getRooms()
+    .then((result) => {
+      res.status(200).json({
+        roomList: result
+      });
     });
   });
 });
@@ -26,6 +29,14 @@ router.get('/roomList', (req, res) => {
  * @param {String} req.bode.roomName - The name of the room to be created
  */
 router.post('/roomList/create', (req, res) => {
+  // "roomList" room is saved for /roomList endpoint
+  if (req.body.roomName === 'roomList') {
+    res.status(403).json({
+      msg: 'Forbidden room name'
+    });
+    return;
+  }
+
   database.addRoom(req.tokenInfo.userID, req.body.roomName)
   .then(() => {
     sockets.addRoom(req.tokenInfo.userID, req.body.roomName)
@@ -85,7 +96,7 @@ router.get('/room/:room/join', (req, res) => {
   })
   // Join room
   .then(() => {
-    // Send join event on sockets
+    // Send join event on sockets and change socket room
     sockets.joinRoom(req.tokenInfo.userID, req.params.room)
     .then(() => {
       // Update database
@@ -93,7 +104,8 @@ router.get('/room/:room/join', (req, res) => {
       .then((roomState) => {
         // Send room data
         res.status(200).json({
-          lines: roomState,
+          lines: roomState.lineData,
+          users: roomState.users,
           msg: `Successfully joined ${req.params.room}`,
         });
       });
