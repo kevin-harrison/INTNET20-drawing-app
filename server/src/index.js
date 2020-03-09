@@ -19,6 +19,7 @@ const express = require("express");
 const http = require("http");
 var fs = require("fs");
 const cookieParser = require("cookie-parser");
+const csp = require('helmet-csp')
 // ------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------- SET-UP BOILERPLATE ------------------------------------------------
 console.loglevel = 4; // Enables debug output
@@ -59,6 +60,14 @@ io.use(
     saveUninitialized: true
   })
 );
+
+// CSP - Only load things from the domain of this server
+app.use(csp({
+  directives: {
+    defaultSrc: ["'self'"]
+  }
+}));
+
 // ------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------ BIND REST API ---------------------------------------------------
 const auth = require("./controllers/auth.controller.js");
