@@ -35,6 +35,7 @@ exports.newConnection = (userID, socket) => {
  * @param {String} userName - Unique username of the user
  * @param {String} roomName - Unique name of the room to join.
  */
+// TODO: check that if server restarts, reconnected sockets are still in a room
 async function joinRoom(userName, roomName) {
   await database.getUser(userName)
   .then((userData) => {

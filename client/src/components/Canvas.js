@@ -31,7 +31,7 @@ export default class Canvas extends Component {
 
       // Draws the line point by point
       lineData.forEach(position => {
-        this.paint(position.start, position.stop, this.style);
+        this.paint(position.start, position.stop, style);
       });
     });
 

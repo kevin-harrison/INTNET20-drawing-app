@@ -46,7 +46,6 @@ const requireAuthSocket = (socket, next) => {
 // ------------------------------------------------------------------------------------------------------------------
 module.exports = { router, requireAuth, requireAuthSocket };
 // ---------------------------------------------- API ROUTES --------------------------------------------------------
-
 /**
  * Intercepts the login API and stores a JWT token in an HTTP only cookie of the response. 
  * @param {String} req.body.username - The username of the login attempt
@@ -85,7 +84,7 @@ router.post('/login', (req, res) => {
       if (result === true) {
         sendToken(req, res);
         res.status(200).json({
-          msg: 'Login succcessful',
+          msg: 'Login successful',
         });
       } else {
         res.status(401).json({
@@ -93,6 +92,22 @@ router.post('/login', (req, res) => {
         });
       }
     })
+});
+
+/**
+ * Logout API.
+ * Replaces the JWT with an empty expired cookie.
+ */
+router.get('/logout', (req, res) => {
+  res.cookie('jwt', null, { 
+    expires: new Date(Date.now()),
+    signed: true, 
+    secure: false, // TODO: make true once HTTPS works
+    httpOnly: true
+  });
+  res.status(200).json({
+    msg: 'Logout successful'
+  });
 });
 
 /**
