@@ -24,6 +24,7 @@ class RoomList extends Component {
     ]
   };
   render() {
+    console.log(this.props);
     return (
       <div className="center">
         <div style={this.style.roomHeader}>ROOMS</div>

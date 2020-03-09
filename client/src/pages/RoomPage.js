@@ -4,6 +4,7 @@ import backbuttonimg from "../img/backbutton.png";
 
 export default class RoomPage extends Component {
   render() {
+    console.log(this.props);
     return (
       <div style={style.container}>
         <header style={style.header}>

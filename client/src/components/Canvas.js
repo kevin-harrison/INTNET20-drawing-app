@@ -10,6 +10,8 @@ export default class Canvas extends Component {
 
     this.clearCanvas = this.clearCanvas.bind(this);
 
+    console.log(this.props);
+
     this.props.socket.on("user_joined", userName => {
       console.log(`${userName} has joined the room`);
       this.state.members.push(userName);
