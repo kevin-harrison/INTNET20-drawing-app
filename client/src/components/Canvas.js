@@ -13,9 +13,7 @@ export default class Canvas extends Component {
     console.log(this.props);
 
     this.props.socket.on("user_joined", userName => {
-      console.log(`${userName} has joined the room`);
       this.state.members.push(userName);
-      console.log( this.state.members);
       this.updateMembers();
     });
 
@@ -50,8 +48,6 @@ export default class Canvas extends Component {
       console.log(`${userID} cleared the room.`);
     });
 
-    this.props.socket.emit("join_room", this.props.roomName);
-
     // Notifies other people of new user in room and gets line data from database
     fetch(`/api/room/${this.props.roomName}/join`)
       .then(resp => {
@@ -63,6 +59,13 @@ export default class Canvas extends Component {
         // Draw room using the line data
         // (Resp has returned a promise which is resolved here)
         resp.json().then(promiseValue => {
+          console.log(promiseValue);
+          // Handle users
+          promiseValue.users.forEach(user => {
+            this.state.members.push(user.username);
+          });
+          this.updateMembers();
+          // Handle lines
           promiseValue.lines.forEach(line => {
             let lineData = JSON.parse(line.data);
             lineData.forEach(position => {
@@ -88,8 +91,6 @@ export default class Canvas extends Component {
   // Different stroke styles to be used for user and guest
   strokeStyle = "#CC0000";
   line = [];
-  /* // v4 creates a unique id for each user. We used this since there's no auth to tell users apart
-  userId = v4(); */
   prevPos = { offsetX: 0, offsetY: 0 };
 
   onMouseDown({ nativeEvent }) {
@@ -144,16 +145,6 @@ export default class Canvas extends Component {
   async sendPaintData() {
     console.log("emitting");
     this.props.socket.emit("draw", this.line, this.strokeStyle);
-    /* 
-    // We use the native fetch API to make requests to the server
-    const req = await fetch('http://localhost:4000/paint', {
-      method: 'post',
-      body: JSON.stringify(body),
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-    const res = await req.json(); */
     this.line = [];
   }
   // Used to resize te canvas and set it up for the right size

@@ -43,11 +43,11 @@ async function joinRoom(userName, roomName) {
     try{
       sockets[userName].leave(userData.currentRoomName, () => {
         console.log(`${userName} left room ${userData.currentRoomName}`);
-        exports.io.in(userData.currentRoomName).emit('user_left', userName);
+        sockets[userName].to(userData.currentRoomName).emit('user_left', userName);
         // join new room
         sockets[userName].join(roomName, () => {
           console.log(`${userName} joined room ${roomName}`);
-          exports.io.in(roomName).emit('user_joined', userName);
+          sockets[userName].to(roomName).emit('user_joined', userName);
         });
       });
     } catch(err) {
