@@ -1,9 +1,5 @@
 import React, { Component } from "react";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import RoomList from "./components/RoomList";
 import Footer from "./components/Footer";
@@ -14,16 +10,21 @@ import withAuth from "./components/withAuth";
 
 class App extends Component {
   state = {
-    data: {
-      socket: null
-    }
+    socket: null
   };
 
   setSocket = socket => {
-    this.state.data.socket = socket;
+    this.state.socket = socket;
+    console.log(`In setSocket ${this.state.socket}`);
+  };
+
+  getSocket = () => {
+    console.log(`In GETSocket ${this.state.socket}`);
+    return this.state.socket;
   };
 
   render() {
+    console.log(this.props);
     return (
       <>
         <Router>
@@ -37,21 +38,17 @@ class App extends Component {
             <Switch>
               <Route
                 path="/rooms"
-                // TODO Auth works but doesnt send socket data
-                /* component={withAuth(RoomList)} */
-                render={props => <RoomList {...props} socket={this.state.data.socket} />}
+                component={withAuth(RoomList, this.getSocket)}
               />
               <Route
                 path="/room/:roomName"
-                // TODO Auth works but doesnt send socket data
-                /* component={withAuth(RoomPage)} */
-                render={props => <RoomPage {...props} socket={this.state.data.socket} />}
+                component={withAuth(RoomPage, this.getSocket)}
               />
-              {/* The '/' route needs to be at the bottom in order to catch all other routes
-            that fail to match previous Route paths */}
               <Route
                 path="/"
-                render={props => <Login {...props} setSocket={this.setSocket} />}
+                render={props => (
+                  <Login {...props} setSocket={this.setSocket} />
+                )}
               />
             </Switch>
             <Footer />
