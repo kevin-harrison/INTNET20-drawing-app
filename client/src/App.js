@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import RoomList from "./components/RoomList";
-import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import RoomPage from "./pages/RoomPage";
 import "./fonts/Doodle.ttf";
@@ -53,7 +52,6 @@ class App extends Component {
                 )}
               />
             </Switch>
-            <Footer />
           </div>
         </Router>
       </>

@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const sequelize = new Sequelize('', '', '', {
   dialect: 'sqlite',
   storage: './database.sqlite',
-  //logging: false
+  logging: false
 });
 
 const rooms = sequelize.define('Rooms', {

@@ -1,17 +1,30 @@
-import React from "react";
+import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
-function Footer() {
-  return (
-    <footer style={footerStyle}>
-      <Link style={linkStyle} to="/">
-        Login
-      </Link>
-      <Link style={linkStyle} to="/rooms">
-        Rooms
-      </Link>
-    </footer>
-  );
+class Footer extends Component {
+  constructor(props) {
+    super(props);
+    console.log(this.props);
+    this.logout = this.logout.bind(this);
+  }
+
+  logout() {
+    fetch("/api/logout");
+    this.props.history.push("/");
+  }
+
+  render() {
+    return (
+      <footer style={footerStyle}>
+        <div style={linkStyle} onClick={this.logout}>
+          Login
+        </div>
+        <Link style={linkStyle} to="/rooms">
+          Rooms
+        </Link>
+      </footer>
+    );
+  }
 }
 
 const footerStyle = {
@@ -28,7 +41,7 @@ const footerStyle = {
   textAlign: "center",
   padding: "10px",
   borderTop: "2px solid #ccc",
-  flexShrink: "0",
+  flexShrink: "0"
 };
 
 const linkStyle = {
@@ -37,6 +50,7 @@ const linkStyle = {
   textDecoration: "none",
   margin: "0 20px",
   textTransform: "uppercase",
+  cursor: "pointer",
 };
 
 export default Footer;
