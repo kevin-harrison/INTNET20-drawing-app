@@ -4,18 +4,18 @@ import { withRouter } from "react-router-dom";
 
 class RoomList extends Component {
   state = {
-    data: null,
     rooms: null
   };
 
-  componentWillMount() {
+  componentDidMount() {
+    this.createSocketListeners();
     this.setRooms();
   }
 
   async setRooms() {
     const resp = await fetch("/api/roomList");
     const promiseValue = await resp.json();
-    this.setState({ data: null, rooms: promiseValue.roomList });
+    this.setState({ rooms: promiseValue.roomList });
   }
 
   getRooms() {
@@ -33,6 +33,15 @@ class RoomList extends Component {
     });
   }
 
+  createSocketListeners(){
+    this.props.socket.on('room_created', (userName, roomName) => {
+      console.log(`${userName} created room: ${roomName}`);
+      let newRoom = { name: roomName, owner: userName };
+      this.setState({ rooms: this.state.rooms.concat(newRoom) });
+      console.log(this.state.rooms);
+    });
+  }
+
   render() {
     return (
       <div className="center">
@@ -43,7 +52,7 @@ class RoomList extends Component {
               <Room
                 key={room.name}
                 name={room.name}
-                available={room.available}
+                owner={room.owner}
                 socket={this.props.socket}
               />
             ))

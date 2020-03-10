@@ -14,6 +14,11 @@ class App extends Component {
   };
 
   setSocket = socket => {
+    // Manually enables reconnects
+    socket.on('disconnect', () =>{
+      socket.connect();
+    });
+
     this.state.socket = socket;
   };
 
