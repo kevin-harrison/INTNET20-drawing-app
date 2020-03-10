@@ -40,7 +40,7 @@ async function joinRoom(userName, roomName) {
   // Check if socket is in a game room else assume they were in roomList
   await database.getUser(userName)
   .then((userData) => {
-    let currentRoom = userData.currentRoomName === null ? 'roomList' : userData.currentRoomName
+    let currentRoom = userData.currentRoomName === null ? 'roomList' : userData.currentRoomName;
     // leave current room
     try {
       sockets[userName].leave(currentRoom, () => {
@@ -53,7 +53,7 @@ async function joinRoom(userName, roomName) {
         });
       });
     } catch(err) {
-      console.log('Unable to update socket');
+      console.log(`Unable to update socket: ${err}`);
     }
   })
 }
