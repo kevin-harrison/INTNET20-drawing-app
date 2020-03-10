@@ -37,25 +37,27 @@ exports.newConnection = (userID, socket) => {
  */
 // TODO: check that if server restarts, reconnected sockets are still in a room
 async function joinRoom(userName, roomName) {
-  // Check if socket is in a game room else assume they were in roomList
-  await database.getUser(userName)
-  .then((userData) => {
-    let currentRoom = userData.currentRoomName === null ? 'roomList' : userData.currentRoomName;
-    // leave current room
-    try {
-      sockets[userName].leave(currentRoom, () => {
-        console.log(`${userName} left room ${currentRoom}`);
-        sockets[userName].to(currentRoom).emit('user_left', userName); // TODO: can socket emit to curentRoom after leaving it?
-        // join new room
-        sockets[userName].join(roomName, () => {
-          console.log(`${userName} joined room ${roomName}`);
-          sockets[userName].to(roomName).emit('user_joined', userName);
+  const socket = sockets[userName];
+  
+  try {
+    // Leave all rooms except for personal id room
+    var connectedRooms = Object.keys(exports.io.sockets.adapter.sids[socket.id]);
+    connectedRooms.map((room) => {
+      if(room !== socket.id) {
+        socket.leave(room, () => {
+          socket.to(room).emit('user_left', userName);
+          console.log(`${userName} left room ${room}`);
         });
-      });
-    } catch(err) {
-      console.log(`Unable to update socket: ${err}`);
-    }
-  })
+      }
+    });
+    // Join new room        
+    socket.join(roomName, () => {
+      console.log(`${userName} joined room ${roomName}`);
+      socket.to(roomName).emit('user_joined', userName);
+    });
+  } catch(err) {
+    console.log(`Unable to update socket: ${err}`);
+  }
 }
 exports.joinRoom = joinRoom;
 
