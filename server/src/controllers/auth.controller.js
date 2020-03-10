@@ -32,10 +32,17 @@ const requireAuth = (req, res, next) => {
  */
 const requireAuthSocket = (socket, next) => {
   // Parse socket request
-  const token  = cookieParser.signedCookie(socket.handshake.cookies.jwt, process.env.KEY);
-  const ip = socket.handshake.headers['x-forwarded-for'] === null ? 
-    socket.handshake.address : 
-    socket.handshake.headers['x-forwarded-for'];
+  try {
+    const token  = cookieParser.signedCookie(socket.handshake.cookies.jwt, process.env.KEY);
+    const ip = socket.handshake.headers['x-forwarded-for'] === null ? 
+      socket.handshake.address : 
+      socket.handshake.headers['x-forwarded-for'];
+  }
+  catch(e){
+    // Fail authentication if we can't get IP address or token
+    console.error('Unable to get authorization parameters');
+    return;
+  }
 
   jwt.verify(token, process.env.KEY, (err, decoded) => {
     if(err || decoded.ipAddress !== ip) return;
