@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const sequelize = new Sequelize('', '', '', {
   dialect: 'sqlite',
   storage: './database.sqlite',
-  logging: false
+  //logging: false
 });
 
 const rooms = sequelize.define('Rooms', {
@@ -20,13 +20,12 @@ const rooms = sequelize.define('Rooms', {
     type: DataTypes.STRING,
     allowNull: true, // TODO: change to false once done testing!
     // TODO: Add correct foreign key constraint, doing it this ways add a cyclical dependency which sequelize cant handlew
-    /* references: {
-      model: users,
-      key: 'username',
-    } */
+    //references: {
+    //  model: users,
+    //  key: 'username',
+    //}
   }
 }, {
-  // Other model options go here
 });
 
 const users = sequelize.define('Users', {
@@ -49,6 +48,7 @@ const users = sequelize.define('Users', {
 }, {
   // Other model options go here
 });
+
 
 const lines = sequelize.define('Lines', {
   roomName: {
@@ -170,10 +170,15 @@ async function addRoom(userID, roomName) {
 exports.addRoom = addRoom;
 
 
-// TODO: make deletions of rooms cascade into lines
+// TODO: Handle foreign key deletion with onDelete settings in database
 async function removeRoom(userID, roomName) {
-  const rowsRemoved = await rooms.destroy({ where: { name: roomName, owner: userID } });
-  return rowsRemoved;
+  const roomExists = await rooms.findOne({ where: { name: roomName, owner: userID } });
+  if (roomExists) {
+    await users.update({ currentRoomName: null }, { where: { currentRoomName: roomName } });
+    await lines.destroy({ where: { roomName: roomName } });
+    await rooms.destroy({ where: { name: roomName, owner: userID } });
+  } 
+  return roomExists;
 }
 exports.removeRoom = removeRoom;
 

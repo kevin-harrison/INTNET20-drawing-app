@@ -35,7 +35,7 @@ const requireAuthSocket = (socket, next) => {
   let token = undefined;
   let ip = undefined;
   try {
-    token  = cookieParser.signedCookie(socket.handshake.cookies.jwt, process.env.KEY);
+    token = cookieParser.signedCookie(socket.handshake.cookies.jwt, process.env.KEY);
     ip = socket.handshake.headers['x-forwarded-for'] === null ? 
       socket.handshake.address : 
       socket.handshake.headers['x-forwarded-for'];
@@ -45,7 +45,6 @@ const requireAuthSocket = (socket, next) => {
     return;
   }
 
-  token = undefined;
   jwt.verify(token, process.env.KEY, (err, decoded) => {
     if(err || decoded.ipAddress !== ip) return;
     socket.tokenInfo = decoded; // TODO: is this ok security-wise?
