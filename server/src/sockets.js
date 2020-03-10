@@ -22,9 +22,9 @@ exports.init = ({ io }) => {
  * @param {SocketIO.Socket} socket - New socket connection to the user.
  */
 exports.newConnection = (userID, socket) => {
-  if(sockets[userID]) {
-    sockets[userID].disconnect(true); // TODO: Clients are still getting too many sockets
-  }
+  //if(sockets[userID]) {
+  //  sockets[userID].disconnect(true); // TODO: Clients are still getting too many sockets, maybe?
+  //}
   sockets[userID] = socket;
 };
 
@@ -37,13 +37,15 @@ exports.newConnection = (userID, socket) => {
  */
 // TODO: check that if server restarts, reconnected sockets are still in a room
 async function joinRoom(userName, roomName) {
+  // Check if socket is in a game room else assume they were in roomList
   await database.getUser(userName)
   .then((userData) => {
+    let currentRoom = userData.currentRoomName === null ? 'roomList' : userData.currentRoomName
     // leave current room
     try{
-      sockets[userName].leave(userData.currentRoomName, () => {
-        console.log(`${userName} left room ${userData.currentRoomName}`);
-        sockets[userName].to(userData.currentRoomName).emit('user_left', userName);
+      sockets[userName].leave(currentRoom, () => {
+        console.log(`${userName} left room ${currentRoom}`);
+        sockets[userName].to(currentRoom).emit('user_left', userName); // TODO: can socket emit to curentRoom after leaving it?
         // join new room
         sockets[userName].join(roomName, () => {
           console.log(`${userName} joined room ${roomName}`);
