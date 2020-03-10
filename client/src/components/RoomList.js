@@ -38,7 +38,6 @@ class RoomList extends Component {
       console.log(`${userName} created room: ${roomName}`);
       let newRoom = { name: roomName, owner: userName };
       this.setState({ rooms: this.state.rooms.concat(newRoom) });
-      console.log(this.state.rooms);
     });
   }
 
