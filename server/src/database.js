@@ -7,7 +7,8 @@ const bcrypt = require('bcrypt');
 // ------------------------------ Define database ------------------------------
 const sequelize = new Sequelize('', '', '', {
   dialect: 'sqlite',
-  storage: './database.sqlite'
+  storage: './database.sqlite',
+  logging: true // TODO: set to false when done debugging
 });
 
 const rooms = sequelize.define('Rooms', {
