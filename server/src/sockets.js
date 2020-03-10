@@ -42,7 +42,7 @@ async function joinRoom(userName, roomName) {
   .then((userData) => {
     let currentRoom = userData.currentRoomName === null ? 'roomList' : userData.currentRoomName
     // leave current room
-    try{
+    try {
       sockets[userName].leave(currentRoom, () => {
         console.log(`${userName} left room ${currentRoom}`);
         sockets[userName].to(currentRoom).emit('user_left', userName); // TODO: can socket emit to curentRoom after leaving it?
