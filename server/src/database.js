@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const sequelize = new Sequelize('', '', '', {
   dialect: 'sqlite',
   storage: './database.sqlite',
-  logging: true // TODO: set to false when done debugging
+  logging: false
 });
 
 const rooms = sequelize.define('Rooms', {
@@ -76,14 +76,14 @@ const lines = sequelize.define('Lines', {
 // Setup database
 async function initDatabase() {
   try {
-    await lines.sync({ force: true });
-    await users.sync({ force: true });
-    await rooms.sync({ force: true });
+    await lines.sync();//{ force: true });
+    await users.sync();//{ force: true });
+    await rooms.sync();//{ force: true });
     await sequelize.authenticate();
 
     // TEMPORARY EXAMPLE DATA
-    await rooms.create({ name: 'Room 1' });
-    await rooms.create({ name: 'Room 2' });
+    //await rooms.create({ name: 'Room 1' });
+    //await rooms.create({ name: 'Room 2' });
 
     console.log('Database created successfuly.');
   } catch (error) {
