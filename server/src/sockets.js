@@ -22,9 +22,10 @@ exports.init = ({ io }) => {
  * @param {SocketIO.Socket} socket - New socket connection to the user.
  */
 exports.newConnection = (userID, socket) => {
-  //if(sockets[userID]) {
-  //  sockets[userID].disconnect(true); // TODO: Clients are still getting too many sockets, maybe?
-  //}
+  console.log(sockets[userID]);
+  if(sockets[userID]) {
+    sockets[userID].disconnect(true);
+  }
   sockets[userID] = socket;
 };
 

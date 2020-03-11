@@ -12,6 +12,8 @@ import Login from "./pages/Login";
 import RoomPage from "./pages/RoomPage";
 
 class App extends Component {
+  // TODO: I think we can solve losing of sockets on refresh by checking
+  // here if we are authorized and if so create a socket
   state = {
     socket: null
   };
@@ -35,44 +37,49 @@ class App extends Component {
       console.log(`Socket ${socket.id} reconnected!!!!`);
     });
     socket.on('reconnect_error', () => {
-      console.log(`Socket ${socket.id} reconnect failed.`);
+      console.log(`Socket ${socket.id} reconnect error.`);
     });
 
+    // Needs to happen after we define the socket listeners
     this.setState({ socket: socket});
   };
 
   render() {
+    // Create component or redirect based on if authorized
+    const AuthedRoomList = withAuth(RoomList);
+    const AuthedRoom = withAuth(RoomPage);
+    
     return (
-      <>
-        <Router>
-          <div
-            className="App"
-            style={{
-              height: "100vh",
-              margin: "0"
-            }}
-          >
-            <Switch>
-              <SocketContext.Provider value={this.state.socket}>
-                <Route
-                  path="/rooms"
-                  component={withAuth(RoomList)}
-                />
-                {/* <Route
-                  path="/room/:roomName"
-                  component={withAuth(RoomPage)}
-                /> */}
-              </SocketContext.Provider>
-              <Route
-                path="/"
-                render={props => (
-                  <Login {...props} setSocket={this.setSocket} />
-                )}
-              />
-            </Switch>
-          </div>
-        </Router>
-      </>
+      <Router>
+        <div
+          className="App"
+          style={{
+            height: "100vh",
+            margin: "0"
+          }}
+        >
+          <Switch>            
+            <Route
+              path="/rooms"
+              render = {props => (
+                <SocketContext.Provider value={this.state.socket}><AuthedRoomList {...props}/></SocketContext.Provider>
+              )}
+            />
+            <Route
+              path="/room/:roomName"
+              render = {props => (
+                <SocketContext.Provider value={this.state.socket}><AuthedRoom {...props}/></SocketContext.Provider>
+              )}
+            />
+            <Route
+              path="/"
+              render={props => (
+                <Login {...props} setSocket={this.setSocket} />
+              )}
+            />
+          </Switch>
+        </div>
+      </Router>
     );
   }
 }
