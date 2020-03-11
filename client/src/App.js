@@ -6,19 +6,46 @@ import Login from "./pages/Login";
 import RoomPage from "./pages/RoomPage";
 import "./fonts/Doodle.ttf";
 import withAuth from "./components/withAuth";
+import io from 'socket.io-client';
 
 class App extends Component {
   state = {
-    socket: null
+    socket: null,
+    manager: null
   };
 
-  setSocket = socket => {
-    // Manually enables reconnects
-    socket.on('disconnect', () =>{
-      socket.connect();
+  setSocket = () => {
+    const socket = io();
+    
+    socket.on('disconnect', () => {
+      console.log(`Socket ${socket} disconnected`);
     });
 
-    this.state.socket = socket;
+    socket.on('line_drawn', () => {
+      console.log(`Socket ${socket.id} receive a line drawn`);
+    });
+
+    socket.on('connect', () => {
+      console.log(`Socket ${socket.id} connected`);
+    });
+
+    socket.on('reconnect_attempt', () => {
+      console.log(`Socket ${socket.id} reconnecting attempt...`);
+    });
+
+    socket.on('reconnecting', () => {
+      console.log(`Socket ${socket.id} reconnecting...`);
+    });
+
+    socket.on('reconnect', () => {
+      console.log(`Socket ${socket.id} reconnected!!!!`);
+    });
+
+    socket.on('reconnect_error', () => {
+      console.log(`Socket ${socket.id} reconnect failed.`);
+    });
+
+    this.setState({ socket: socket});
   };
 
   getSocket = () => {

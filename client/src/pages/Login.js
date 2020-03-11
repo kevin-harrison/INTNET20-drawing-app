@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import io from 'socket.io-client';
 
 export default class Login extends Component {
   constructor(props) {
@@ -33,10 +32,9 @@ export default class Login extends Component {
       })
     })
       .then(resp => {
-        console.log(resp);
         if (resp.ok) {
           /* Connect and give socketID for connection */
-          this.props.setSocket(io().connect());
+          this.props.setSocket();
           this.props.history.push("/rooms");
         }
       })
