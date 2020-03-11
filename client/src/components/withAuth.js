@@ -1,7 +1,7 @@
 // withAuth.jsx
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-export default function withAuth(ComponentToProtect, getSocket) {
+export default function withAuth(ComponentToProtect) {
   return class extends Component {
     constructor() {
       super();
@@ -33,7 +33,7 @@ export default function withAuth(ComponentToProtect, getSocket) {
       if (redirect) {
         return <Redirect to="/" />;
       }
-      return <ComponentToProtect {...this.props} socket={getSocket()}/>;
+      return <ComponentToProtect {...this.props}/>;
     }
   }
 }

@@ -4,20 +4,17 @@ import backbuttonimg from "../img/backbutton.png";
 
 export default class RoomPage extends Component {
   render() {
+    console.log(this.props);
     return (
       <div style={style.container}>
         <header style={style.header}>
           <div style={style.backbutton} onClick={() => {this.props.history.push("/rooms")}}></div>
-          <div
-            style={style.roomname}
-            
-          >
+          <div style={style.roomname}>
             {this.props.match.params.roomName}
           </div>
         </header>
         <Canvas
           roomName={this.props.match.params.roomName}
-          socket={this.props.socket}
         />
       </div>
     );

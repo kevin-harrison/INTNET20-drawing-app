@@ -82,11 +82,16 @@ const sockets = require("./sockets.js");
 sockets.init({ io });
 
 // Handle connected socket.io sockets and add authentication gaurd
+// TODO: Place reconnecting sockets into correct room
 io.use(auth.requireAuthSocket).on('connection', (socket) => {
   console.log(`New socket id=${socket.id}, user=${socket.tokenInfo.userID}, session=${socket.tokenInfo.sessionID}`);
 
   socket.on('disconnect', (reason) => {
     console.log(`Socket id=${socket.id} was disconnected`);
+  });
+
+  socket.on('reconnected', (reason) => {
+    console.log(`Socket id=${socket.id} was reconnected`);
   });
 
   socket.on('draw', (lineInfo, style) => {

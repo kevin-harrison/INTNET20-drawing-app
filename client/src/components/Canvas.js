@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import Dropdown from "./Dropdown";
+import SocketContext from "../components/SocketContext";
 
-export default class Canvas extends Component {
+class CanvasInSocketContext extends Component {
   constructor(props) {
     super(props);
     this.onMouseDown = this.onMouseDown.bind(this);
@@ -57,7 +58,6 @@ export default class Canvas extends Component {
         // Draw room using the line data
         // (Resp has returned a promise which is resolved here)
         resp.json().then(promiseValue => {
-          console.log(promiseValue);
           // Handle users
           promiseValue.users.forEach(user => {
             this.state.members.push(user.username);
@@ -182,6 +182,7 @@ export default class Canvas extends Component {
       <div>
         <canvas
           // We use the ref attribute to get direct access to the canvas element.
+          // TODO: Stop using ref for connected user list
           ref={ref => (this.canvas = ref)}
           style={style.canvas}
           onMouseDown={this.onMouseDown}
@@ -239,6 +240,13 @@ export default class Canvas extends Component {
     );
   }
 }
+
+const Canvas = props => (
+  <SocketContext.Consumer>
+    {socket => <CanvasInSocketContext {...props} socket={socket} />}
+  </SocketContext.Consumer>
+);
+export default Canvas;
 
 const style = {
   canvas: {

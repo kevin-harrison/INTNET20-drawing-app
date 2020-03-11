@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import Room from "./Room";
-import { withRouter } from "react-router-dom";
 import Footer from "../components/Footer";
+import SocketContext from "../components/SocketContext";
 
-class RoomList extends Component {
+class RoomListInSocketContext extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,14 +28,11 @@ class RoomList extends Component {
 
   getRooms() {
     this.setRooms().then(() => {
-      console.log(this.state.rooms);
-      console.log(this.state.rooms[0]);
       return this.state.rooms.map(room => (
         <Room
           key={room.name}
           name={room.name}
-          available={room.available}
-          socket={this.props.socket}
+          owner={room.owner}
         />
       ));
     });
@@ -95,7 +92,6 @@ class RoomList extends Component {
                     key={room.name}
                     name={room.name}
                     owner={room.owner}
-                    socket={this.props.socket}
                     deleteRoom={this.deleteRoom}
                   />
                 ))
@@ -171,5 +167,11 @@ class RoomList extends Component {
     }
   };
 }
+
+const RoomList = props => (
+  <SocketContext.Consumer>
+    {socket => <RoomListInSocketContext {...props} socket={socket} />}
+  </SocketContext.Consumer>
+);
 
 export default RoomList;
