@@ -76,6 +76,7 @@ export default class Canvas extends Component {
   } // End of constructor
 
   // Used for pdating the list of members on the page
+  // TODO: This crashes when you go roomList -> login -> roomList
   updateMembers() {
     let members = "";
     this.state.members.forEach((member) => {

@@ -172,4 +172,4 @@ class RoomList extends Component {
   };
 }
 
-export default withRouter(RoomList);
+export default RoomList;
