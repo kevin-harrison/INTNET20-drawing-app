@@ -46,6 +46,9 @@ class RoomList extends Component {
   }
 
   createRoom() {
+    if (this.state.newRoomName.trim() === "") {
+      return;
+    }
     fetch("/api/roomList/create", {
       method: "POST",
       headers: {
@@ -109,7 +112,12 @@ class RoomList extends Component {
                 style={this.style.roomNameInput}
                 onChange={this.updateNewRoomName}
               />
-              <button onClick={this.createRoom}>+</button>
+              <div
+                onClick={this.createRoom}
+                style={this.style.addRoomButton}
+              >
+                +
+              </div>
             </div>
           </div>
         </div>
@@ -147,7 +155,7 @@ class RoomList extends Component {
       background: "linear-gradient(0deg, rgb(252, 234, 187), rgb(240, 220, 0))"
     },
     newRoom: {
-      height: "40px",
+      height: "50px",
       width: "100%",
       display: "flex",
       justifyContent: "space-evenly",
@@ -157,6 +165,8 @@ class RoomList extends Component {
     },
     roomNameInput: {
       height: "30px",
+      width: "50%",
+      margin: "auto",
       borderRadius: "8px",
       fontFamily: "Doodle",
       fontSize: "20px",
@@ -164,10 +174,20 @@ class RoomList extends Component {
       paddingLeft: "5px"
     },
     addRoomButton: {
-      height: "30px",
-      width: "30px",
-      color: "#fff",
-      backgroundColor: "rgb(120, 205, 104)"
+      width: "18%",
+      marginRight: "2%",
+      height: "84%",
+      background: "rgb(111, 214, 10)",
+      borderRadius: "10px",
+      display: "inline-flex",
+      justifyContent: "center",
+      alignItems: "center",
+      boxShadow: "2px 2px 1px 0px rgba(0,0,0,0.75)",
+      fontSize: "37px",
+      paddingTop: "1%",
+      fontFamily: "Doodle",
+      letterSpacing: "2px",
+      color: "#fff"
     }
   };
 }

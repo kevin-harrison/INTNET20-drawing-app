@@ -17,11 +17,8 @@ class Footer extends Component {
     return (
       <footer style={footerStyle}>
         <div style={linkStyle} onClick={this.logout}>
-          Login
+          Logout
         </div>
-        <Link style={linkStyle} to="/rooms">
-          Rooms
-        </Link>
       </footer>
     );
   }
