@@ -27,8 +27,6 @@ export default class Canvas extends Component {
 
     // Receive drawing data from other sockets
     this.props.socket.on("line_drawn", (userID, lineData, style) => {
-      console.log(`${userID} drew ${JSON.stringify(lineData, null, 2)}`);
-
       // Draws the line point by point
       lineData.forEach(position => {
         this.paint(position.start, position.stop, style);
@@ -143,7 +141,7 @@ export default class Canvas extends Component {
     this.prevPos = { offsetX, offsetY };
   }
   async sendPaintData() {
-    console.log("emitting");
+    console.log(`sending draw with socket ${this.props.socket.id}`);
     this.props.socket.emit("draw", this.line, this.strokeStyle);
     this.line = [];
   }
