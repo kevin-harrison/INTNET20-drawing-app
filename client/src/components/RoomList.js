@@ -172,4 +172,10 @@ class RoomList extends Component {
   };
 }
 
+const YourDeeplyNestedComponentWithSocket = props => (
+  <SocketContext.Consumer>
+  {socket => <YourDeeplyNestedComponent {...props} socket={socket} />}
+  </SocketContext.Consumer>
+)
+
 export default withRouter(RoomList);
