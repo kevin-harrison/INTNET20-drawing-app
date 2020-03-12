@@ -88,6 +88,7 @@ io.use(auth.requireAuthSocket).on('connection', (socket) => {
 
   socket.on('disconnect', (reason) => {
     console.log(`Socket id=${socket.id} was disconnected`);
+    sockets.leaveRoom(socket.tokenInfo.userID);
   });
 
   socket.on('reconnected', (reason) => {

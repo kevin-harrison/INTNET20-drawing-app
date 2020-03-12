@@ -32,34 +32,42 @@ exports.newConnection = (userID, socket) => {
  * Called when a user joins a game room through the API.
  * Links the the user with their socket.
  * Leaves the socket's previous room and joins the new room.
- * @param {String} userName - Unique username of the user
+ * @param {String} userID - Unique username of the user
  * @param {String} roomName - Unique name of the room to join.
  */
 // TODO: check that if server restarts, reconnected sockets are still in a room
-async function joinRoom(userName, roomName) {
-  const socket = sockets[userName];
+async function joinRoom(userID, roomName) {
+  const socket = sockets[userID];
   
   try {
     // Leave all rooms except for personal id room
     var connectedRooms = Object.keys(exports.io.sockets.adapter.sids[socket.id]);
     connectedRooms.map((room) => {
       if(room !== socket.id) {
+        database.leaveRoom(userID);
         socket.leave(room, () => {
-          socket.to(room).emit('user_left', userName);
-          console.log(`${userName} left room ${room}`);
+          socket.to(room).emit('user_left', userID);
+          console.log(`${userID} left room ${room}`);
         });
       }
     });
     // Join new room        
     socket.join(roomName, () => {
-      console.log(`${userName} joined room ${roomName}`);
-      socket.to(roomName).emit('user_joined', userName);
+      console.log(`${userID} joined room ${roomName}`);
+      socket.to(roomName).emit('user_joined', userID);
     });
   } catch(err) {
     console.log(`Unable to update socket: ${err}`);
   }
 }
 exports.joinRoom = joinRoom;
+
+async function leaveRoom(userID) {
+  const room = await database.leaveRoom(userID);
+  console.log(`Removing ${userID} from ${room} due to disconnection`);
+  exports.io.in(room).emit('user_left', userID);
+}
+exports.leaveRoom = leaveRoom;
 
 
 async function addRoom(userID, roomName) {

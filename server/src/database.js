@@ -197,7 +197,7 @@ async function getRoomLines(roomName) {
 
 
 async function joinRoom(userID, roomName) {
-  await users.update({ currentRoomName: roomName }, {where: { username: userID}})
+  await users.update({ currentRoomName: roomName }, {where: { username: userID}});
   const usersInRoom = await users.findAll({
     attributes: ['username'],
     where: {
@@ -209,6 +209,17 @@ async function joinRoom(userID, roomName) {
 }
 exports.joinRoom = joinRoom;
 
+async function leaveRoom(userID) {
+  const leftRoom = await users.findOne({
+    attributes: ['currentRoomName'],
+    where: {
+      username: userID
+    }
+  });
+  users.update({ currentRoomName: null }, {where: { username: userID}});
+  return leftRoom.currentRoomName;
+}
+exports.leaveRoom = leaveRoom;
 
 async function addLine(roomName, lineData, style) {
   await lines.create({ roomName: roomName, data: lineData , style: style });
