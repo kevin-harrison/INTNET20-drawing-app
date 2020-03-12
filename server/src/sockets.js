@@ -44,7 +44,6 @@ async function joinRoom(userID, roomName) {
     var connectedRooms = Object.keys(exports.io.sockets.adapter.sids[socket.id]);
     connectedRooms.map((room) => {
       if(room !== socket.id) {
-        database.leaveRoom(userID);
         socket.leave(room, () => {
           socket.to(room).emit('user_left', userID);
           console.log(`${userID} left room ${room}`);
