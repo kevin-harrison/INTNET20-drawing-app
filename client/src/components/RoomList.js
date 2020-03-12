@@ -76,6 +76,12 @@ class RoomListInSocketContext extends Component {
 
   createSocketListeners() {
     if(this.props.socket) {
+      this.props.socket.off('connect');
+      this.props.socket.on('connect', () => {
+        console.log(`Socket ${this.props.socket.id} connected`);
+        this.props.socket.emit('connected', 'roomList');
+      });
+
       this.props.socket.on("room_created", (userName, roomName) => {
         const newRoom = { name: roomName, owner: userName };
         this.setState({ rooms: this.state.rooms.concat(newRoom) });

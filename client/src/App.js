@@ -24,8 +24,10 @@ class App extends Component {
     socket.on('disconnect', () => {
       console.log(`Socket ${socket} disconnected`);
     });
+    socket.off('connect');
     socket.on('connect', () => {
       console.log(`Socket ${socket.id} connected`);
+      socket.emit('connected', null);
     });
     socket.on('reconnect_attempt', () => {
       console.log(`Socket ${socket.id} reconnecting attempt...`);

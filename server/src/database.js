@@ -198,6 +198,7 @@ async function getRoomLines(roomName) {
 
 async function joinRoom(userID, roomName) {
   await users.update({ currentRoomName: roomName }, {where: { username: userID}});
+  console.log(`${userID} joined ${roomName} in database`);
   const usersInRoom = await users.findAll({
     attributes: ['username'],
     where: {
@@ -217,6 +218,7 @@ async function leaveRoom(userID) {
     }
   });
   users.update({ currentRoomName: null }, {where: { username: userID}});
+  console.log(`${userID} left ${leftRoom.currentRoomName} in database`);
   return leftRoom.currentRoomName;
 }
 exports.leaveRoom = leaveRoom;

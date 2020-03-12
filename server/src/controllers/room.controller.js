@@ -13,15 +13,18 @@ module.exports = { router }
  */
 router.get('/roomList', (req, res) => {
   // Send join event on sockets and change socket room
-  sockets.joinRoom(req.tokenInfo.userID, 'roomList')
-  .then(() => {
-    database.getRooms()
-    .then((result) => {
-      res.status(200).json({
-        roomList: result
-      });
+  sockets.joinRoom(req.tokenInfo.userID, 'roomList');
+
+  // Set room of user in database to null
+  database.leaveRoom(req.tokenInfo.userID);
+
+  // Send room list data
+  database.getRooms()
+  .then((result) => {
+    res.status(200).json({
+      roomList: result
     });
-  });
+  })
 });
 
 /**

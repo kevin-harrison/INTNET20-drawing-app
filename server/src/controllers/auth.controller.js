@@ -74,7 +74,7 @@ function sendToken(req, res){
   res.cookie('jwt', token, { 
     expires: tokenExpirationDate,
     signed: true, 
-    secure: false, // TODO: make true once HTTPS works
+    secure: true,
     httpOnly: true
   });
 }
@@ -110,7 +110,7 @@ router.get('/logout', (req, res) => {
   res.cookie('jwt', null, { 
     expires: new Date(Date.now()),
     signed: true, 
-    secure: false, // TODO: make true once HTTPS works
+    secure: true,
     httpOnly: true
   });
   res.status(200).json({

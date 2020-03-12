@@ -115,10 +115,18 @@ class CanvasInSocketContext extends Component {
 
   createSocketListeners() {
     if (this.props.socket) {
+      this.props.socket.off('connect');
+      this.props.socket.on('connect', () => {
+        console.log(`Socket ${this.props.socket.id} connected`);
+        this.props.socket.emit('connected', this.props.roomName);
+      });
+
       this.props.socket.on("user_joined", userName => {
-        this.setState(prevState => ({
-          members: [...prevState.members, userName]
-        }))
+        if(this.state.members.indexOf(userName) === -1) {
+          this.setState(prevState => ({
+            members: [...prevState.members, userName]
+          }))
+        }
       });
 
       this.props.socket.on("user_left", userName => {
@@ -187,7 +195,7 @@ class CanvasInSocketContext extends Component {
         <div style={style.memberList}>
           {console.log(this.state.members)}
           {this.state.members.map(member => (
-            <div>{member}</div>
+            <div key={member}>{member}</div>
           ))}
         </div>
         <div style={style.dropdownArea}>

@@ -23,7 +23,6 @@ const csp = require('helmet-csp')
 // ------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------- SET-UP BOILERPLATE ------------------------------------------------
 console.loglevel = 4; // Enables debug output
-const publicPath = path.join(__dirname, "..", "..", "client", "dist");
 const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
 
@@ -85,31 +84,6 @@ app.use("/api", auth.requireAuth, room.router); // TODO: this auth gaurd makes a
 // Init sockets
 const sockets = require("./sockets.js");
 sockets.init({ io });
-
-// Handle connected socket.io sockets and add authentication gaurd
-// TODO: Place reconnecting sockets into correct room
-io.use(auth.requireAuthSocket).on('connection', (socket) => {
-  console.log(`New socket id=${socket.id}, user=${socket.tokenInfo.userID}, session=${socket.tokenInfo.sessionID}`);
-
-  socket.on('disconnect', (reason) => {
-    console.log(`Socket id=${socket.id} was disconnected`);
-    sockets.leaveRoom(socket.tokenInfo.userID);
-  });
-
-  socket.on('reconnected', (reason) => {
-    console.log(`Socket id=${socket.id} was reconnected`);
-  });
-
-  socket.on('draw', (lineInfo, style) => {
-    sockets.draw(socket.tokenInfo.userID, lineInfo, style);
-  });
-
-  socket.on('clear', () => {
-    sockets.clear(socket.tokenInfo.userID);
-  });
-
-  sockets.newConnection(socket.tokenInfo.userID, socket);
-});
 // ------------------------------------------------------------------------------------------------------------------
 // Start server
 httpsServer.listen(port, () => {
