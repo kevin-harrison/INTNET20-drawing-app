@@ -23,10 +23,7 @@ class CanvasInSocketContext extends Component {
         // (Resp has returned a promise which is resolved here)
         resp.json().then(promiseValue => {
           // Handle users
-          promiseValue.users.forEach(user => {
-            this.state.members.push(user.username);
-          });
-          this.updateMembers();
+          this.setState({ members: promiseValue.users });
           // Handle lines
           promiseValue.lines.forEach(line => {
             let lineData = JSON.parse(line.data);
@@ -38,17 +35,6 @@ class CanvasInSocketContext extends Component {
       })
       .catch(console.error);
   } // End of constructor
-
-  // Used for pdating the list of members on the page
-  // TODO: This crashes when you go roomList -> login -> roomList
-  updateMembers() {
-    let members = "";
-    this.state.members.forEach((member) => {
-      members += `<div>${member}</div>`
-    });
-    this.memberlist.innerHTML = members;
-  }
-
 
   isPainting = false;
   // Different stroke styles to be used for user and guest
@@ -128,20 +114,22 @@ class CanvasInSocketContext extends Component {
   }
 
   createSocketListeners() {
-    if(this.props.socket){
+    if (this.props.socket) {
       this.props.socket.on("user_joined", userName => {
-        this.state.members.push(userName);
-        this.updateMembers();
+        this.setState(prevState => ({
+          members: [...prevState.members, userName]
+        }))
       });
-  
+
       this.props.socket.on("user_left", userName => {
-        const index = this.state.members.indexOf(userName);
+        let array = [...this.state.members]; //makes a copy of array
+        const index = array.indexOf(userName);
         if (index > -1) {
-          this.state.members.splice(index, 1);
-          this.updateMembers();
+          array.splice(index, 1);
+          this.setState({members: array});
         }
       });
-  
+
       // Receive drawing data from other sockets
       this.props.socket.on("line_drawn", (userID, lineData, style) => {
         // Draws the line point by point
@@ -149,16 +137,16 @@ class CanvasInSocketContext extends Component {
           this.paint(position.start, position.stop, style);
         });
       });
-  
+
       this.props.socket.on("room_created", (userID, roomName) => {
         console.log(`${userID} created room ${roomName}`);
       });
-  
+
       this.props.socket.on("room_deleted", (userID, roomName) => {
         console.log(`${userID} deleted room ${roomName}`);
       });
-  
-      this.props.socket.on("clear", (userID) => {
+
+      this.props.socket.on("clear", userID => {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         console.log(`${userID} cleared the room.`);
       });
@@ -186,7 +174,6 @@ class CanvasInSocketContext extends Component {
       <div>
         <canvas
           // We use the ref attribute to get direct access to the canvas element.
-          // TODO: Stop using ref for connected user list
           ref={ref => (this.canvas = ref)}
           style={style.canvas}
           onMouseDown={this.onMouseDown}
@@ -197,8 +184,11 @@ class CanvasInSocketContext extends Component {
           onTouchMove={this.onMouseMove}
           onTouchEnd={this.endPaintEvent}
         />
-        <div ref={ref => (this.memberlist = ref)}
-        style={style.memberList}>
+        <div style={style.memberList}>
+          {console.log(this.state.members)}
+          {this.state.members.map(member => (
+            <div>{member}</div>
+          ))}
         </div>
         <div style={style.dropdownArea}>
           <Dropdown

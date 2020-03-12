@@ -105,7 +105,7 @@ router.get('/room/:room/join', (req, res) => {
         // Send room data
         res.status(200).json({
           lines: roomState.lineData,
-          users: roomState.users,
+          users: roomState.users.map(user => user.username),
           msg: `Successfully joined ${req.params.room}`,
         });
       });
