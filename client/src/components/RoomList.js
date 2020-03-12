@@ -186,7 +186,8 @@ class RoomListInSocketContext extends Component {
       paddingTop: "1%",
       fontFamily: "Doodle",
       letterSpacing: "2px",
-      color: "#fff"
+      color: "#fff",
+      cursor: "pointer"
     }
   };
 }

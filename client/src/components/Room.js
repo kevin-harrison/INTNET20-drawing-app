@@ -51,5 +51,6 @@ const style = {
     fontSize: "22px",
     fontFamily: "Doodle",
     letterSpacing: "2px",
+    cursor: "pointer"
   }
 };
