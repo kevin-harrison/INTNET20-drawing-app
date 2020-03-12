@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Room from "./Room";
 import Footer from "../components/Footer";
 import SocketContext from "../components/SocketContext";
+import createPopup from "../components/Popup";
 
 class RoomListInSocketContext extends Component {
   constructor(props) {
@@ -66,18 +67,20 @@ class RoomListInSocketContext extends Component {
       body: JSON.stringify({
         roomName: roomName
       })
+    }).then((res) => {
+      if (!res.ok) {
+        createPopup(`Only the owner of the room can remove it.`, 2, 4000, "error");
+      }
     });
   }
 
   createSocketListeners() {
     this.props.socket.on("room_created", (userName, roomName) => {
-      console.log(`${userName} created room: ${roomName}`);
       const newRoom = { name: roomName, owner: userName };
       this.setState({ rooms: this.state.rooms.concat(newRoom) });
     });
 
     this.props.socket.on("room_deleted", (userName, roomName) => {
-      console.log(`${userName} deleted room: ${roomName}`);
       const newRooms = this.state.rooms.filter(room => room.name !== roomName);
       this.setState({ rooms: newRooms });
     });

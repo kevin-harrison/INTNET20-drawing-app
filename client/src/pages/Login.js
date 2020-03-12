@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import createPopup from "../components/Popup";
 
 export default class Login extends Component {
   constructor(props) {
@@ -36,6 +37,9 @@ export default class Login extends Component {
           /* Connect and give socketID for connection */
           this.props.setSocket();
           this.props.history.push("/rooms");
+          createPopup(`Welcome ${this.state.usernameInput} !`, 45, 4000, "success");
+        } else {
+          createPopup(`Unable to login.`, 68, 4000, "error", ["Make sure you entered the right username and password"]);
         }
       })
       .catch(error => {
@@ -56,8 +60,12 @@ export default class Login extends Component {
       })
     })
       .then(resp => {
-        console.log(resp);
-        if (resp.ok) return resp;
+        if (resp.ok) {
+          createPopup(`You may now login.`, 68, 2000, "success");
+          return resp;
+        } else {
+          createPopup(`Unable to register.`, 68, 4000, "error", ["The username provided may already be taken. Try another one!"]);
+        }
       })
       .catch(error => {
         console.error("Authentication failed unexpectedly");
