@@ -47,7 +47,7 @@ const requireAuthSocket = (socket, next) => {
 
   jwt.verify(token, process.env.KEY, (err, decoded) => {
     if(err || decoded.ipAddress !== ip) return;
-    socket.tokenInfo = decoded; // TODO: is this ok security-wise?
+    socket.tokenInfo = decoded;
     next();
   });
 };

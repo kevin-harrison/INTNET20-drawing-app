@@ -44,6 +44,15 @@ class App extends Component {
     this.setState({ socket: socket});
   };
 
+  componentDidMount() {
+    fetch('/api/isAuthorized')
+      .then(res => {
+        if (res.status === 200) {
+          this.setSocket();
+        }
+      });
+  }
+
   render() {
     // Create component or redirect based on if authorized
     const AuthedRoomList = withAuth(RoomList);
