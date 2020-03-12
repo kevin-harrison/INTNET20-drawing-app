@@ -16,13 +16,13 @@
     "util": "^0.12.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HTTPS=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start-sw": "http-server ./build"
   },
-  "proxy": "http://localhost:8989/",
+  "proxy": "https://localhost:8989/",
   "eslintConfig": {
     "extends": "react-app"
   },

@@ -16,7 +16,7 @@ const path = require("path"); // helper library for resolving relative paths
 const expressSession = require("express-session");
 const socketIOSession = require("express-socket.io-session");
 const express = require("express");
-const http = require("http");
+const https = require("https");
 var fs = require("fs");
 const cookieParser = require("cookie-parser");
 const csp = require('helmet-csp')
@@ -27,9 +27,14 @@ const publicPath = path.join(__dirname, "..", "..", "client", "dist");
 const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
 
+// Get HTTPS credentials
+const key = fs.readFileSync("./keys/key.pem");
+const certificate = fs.readFileSync("./keys/cert.pem");
+const credentials  = { key: key, cert: certificate };
+
 // Express usually does this for us, but socket.io needs the httpServer directly
-const httpServer = http.Server(app);
-const io = require("socket.io").listen(httpServer); // Creates socket.io app
+const httpsServer = https.Server(credentials, app);
+const io = require("socket.io").listen(httpsServer); // Creates socket.io app
 
 // Setup middlewares
 app.use(
@@ -107,6 +112,10 @@ io.use(auth.requireAuthSocket).on('connection', (socket) => {
 });
 // ------------------------------------------------------------------------------------------------------------------
 // Start server
-httpServer.listen(port, () => {
-  console.log(`Listening on http://localhost:${port}`);
+httpsServer.listen(port, () => {
+  console.log(`Listening on https://localhost:${port}`);
+});
+
+app.get('/httpsTest', (req, res) => {
+  res.send('WOW VERY SECURE.');
 });
