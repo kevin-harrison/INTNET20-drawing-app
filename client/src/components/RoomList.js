@@ -75,15 +75,17 @@ class RoomListInSocketContext extends Component {
   }
 
   createSocketListeners() {
-    this.props.socket.on("room_created", (userName, roomName) => {
-      const newRoom = { name: roomName, owner: userName };
-      this.setState({ rooms: this.state.rooms.concat(newRoom) });
-    });
-
-    this.props.socket.on("room_deleted", (userName, roomName) => {
-      const newRooms = this.state.rooms.filter(room => room.name !== roomName);
-      this.setState({ rooms: newRooms });
-    });
+    if(this.props.socket) {
+      this.props.socket.on("room_created", (userName, roomName) => {
+        const newRoom = { name: roomName, owner: userName };
+        this.setState({ rooms: this.state.rooms.concat(newRoom) });
+      });
+  
+      this.props.socket.on("room_deleted", (userName, roomName) => {
+        const newRooms = this.state.rooms.filter(room => room.name !== roomName);
+        this.setState({ rooms: newRooms });
+      });
+    }
   }
 
   render() {

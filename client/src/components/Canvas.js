@@ -11,42 +11,6 @@ class CanvasInSocketContext extends Component {
 
     this.clearCanvas = this.clearCanvas.bind(this);
 
-    console.log(this.props);
-
-    this.props.socket.on("user_joined", userName => {
-      this.state.members.push(userName);
-      this.updateMembers();
-    });
-
-    this.props.socket.on("user_left", userName => {
-      const index = this.state.members.indexOf(userName);
-      if (index > -1) {
-        this.state.members.splice(index, 1);
-        this.updateMembers();
-      }
-    });
-
-    // Receive drawing data from other sockets
-    this.props.socket.on("line_drawn", (userID, lineData, style) => {
-      // Draws the line point by point
-      lineData.forEach(position => {
-        this.paint(position.start, position.stop, style);
-      });
-    });
-
-    this.props.socket.on("room_created", (userID, roomName) => {
-      console.log(`${userID} created room ${roomName}`);
-    });
-
-    this.props.socket.on("room_deleted", (userID, roomName) => {
-      console.log(`${userID} deleted room ${roomName}`);
-    });
-
-    this.props.socket.on("clear", (userID) => {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      console.log(`${userID} cleared the room.`);
-    });
-
     // Notifies other people of new user in room and gets line data from database
     fetch(`/api/room/${this.props.roomName}/join`)
       .then(resp => {
@@ -163,6 +127,44 @@ class CanvasInSocketContext extends Component {
     this.props.socket.emit("clear");
   }
 
+  createSocketListeners() {
+    if(this.props.socket){
+      this.props.socket.on("user_joined", userName => {
+        this.state.members.push(userName);
+        this.updateMembers();
+      });
+  
+      this.props.socket.on("user_left", userName => {
+        const index = this.state.members.indexOf(userName);
+        if (index > -1) {
+          this.state.members.splice(index, 1);
+          this.updateMembers();
+        }
+      });
+  
+      // Receive drawing data from other sockets
+      this.props.socket.on("line_drawn", (userID, lineData, style) => {
+        // Draws the line point by point
+        lineData.forEach(position => {
+          this.paint(position.start, position.stop, style);
+        });
+      });
+  
+      this.props.socket.on("room_created", (userID, roomName) => {
+        console.log(`${userID} created room ${roomName}`);
+      });
+  
+      this.props.socket.on("room_deleted", (userID, roomName) => {
+        console.log(`${userID} deleted room ${roomName}`);
+      });
+  
+      this.props.socket.on("clear", (userID) => {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        console.log(`${userID} cleared the room.`);
+      });
+    }
+  }
+
   componentDidMount() {
     // Here we set up the properties of the canvas element.
     /* Sets the correct canvas dimensions depending on the screen */
@@ -172,6 +174,8 @@ class CanvasInSocketContext extends Component {
     this.ctx.lineCap = "round";
     this.ctx.lineWidth = 20;
     window.addEventListener("resize", this.resizeCanvas());
+
+    this.createSocketListeners();
   }
 
   state = {
