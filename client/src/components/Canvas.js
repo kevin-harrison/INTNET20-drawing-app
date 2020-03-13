@@ -144,6 +144,7 @@ class CanvasInSocketContext extends Component {
         lineData.forEach(position => {
           this.paint(position.start, position.stop, style);
         });
+        this.isPainting = false;
       });
 
       this.props.socket.on("room_created", (userID, roomName) => {
@@ -155,7 +156,7 @@ class CanvasInSocketContext extends Component {
       });
 
       this.props.socket.on("clear", userID => {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         console.log(`${userID} cleared the room.`);
       });
     }
