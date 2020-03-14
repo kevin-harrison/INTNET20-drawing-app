@@ -86,6 +86,13 @@ class CanvasInSocketContext extends Component {
   }
   paint(prevPos, currPos, strokeStyle, userID = "self_user_id") {
     const { offsetX, offsetY } = currPos;
+    // Catch userID undefined
+    if (userID != "self_user_id" && this.state.members[userID] === undefined) {
+      // TODO: May want to find out why this is sometimes undefined and try to fix the case some other way
+      this.state.members[userID] = {};
+      this.state.members[userID].isDrawing = false;
+      this.state.members[userID].prevPos = { offsetX: 0, offsetY: 0 };
+    }
     const { offsetX: x, offsetY: y } =
       userID === "self_user_id"
         ? prevPos
@@ -163,6 +170,8 @@ class CanvasInSocketContext extends Component {
           obj[userID].isDrawing = true;
           this.setState({ members: obj });
         }
+        // TODO There is still an issue where immediate draw emits are not being caught
+        // in some cases.
       });
 
       // Receive drawing data from other sockets
@@ -208,7 +217,7 @@ class CanvasInSocketContext extends Component {
   };
   render() {
     return (
-      <div>
+      <div style={style.outerContainer}>
         <canvas
           // We use the ref attribute to get direct access to the canvas element.
           ref={ref => (this.canvas = ref)}
@@ -281,6 +290,10 @@ const Canvas = props => (
 export default Canvas;
 
 const style = {
+  outerContainer: {
+    width: "100vw",
+    height: "100vh",
+  },
   canvas: {
     background: "#fff",
     width: "100vw",
