@@ -68,6 +68,13 @@ class CanvasInSocketContext extends Component {
       };
       // Add the position to the line array
       this.line = this.line.concat(positionData);
+      this.props.socket.emit(
+        "immediate_paint",
+        this.props.roomName,
+        this.prevPos,
+        offSetData,
+        this.strokeStyle
+      );
       this.paint(this.prevPos, offSetData, this.strokeStyle);
     }
   }
@@ -77,9 +84,14 @@ class CanvasInSocketContext extends Component {
       this.sendPaintData();
     }
   }
-  paint(prevPos, currPos, strokeStyle) {
+  paint(prevPos, currPos, strokeStyle, userID = "self_user_id") {
     const { offsetX, offsetY } = currPos;
-    const { offsetX: x, offsetY: y } = prevPos;
+    const { offsetX: x, offsetY: y } =
+      userID === "self_user_id"
+        ? prevPos
+        : this.state.members[userID].isDrawing
+        ? this.state.members[userID].prevPos
+        : currPos;
 
     this.ctx.beginPath();
     this.ctx.strokeStyle = strokeStyle;
@@ -89,10 +101,13 @@ class CanvasInSocketContext extends Component {
     this.ctx.lineTo(offsetX, offsetY);
     // Visualize the line using the strokeStyle
     this.ctx.stroke();
-    this.prevPos = { offsetX, offsetY };
+    if (userID === "self_user_id") {
+      this.prevPos = { offsetX, offsetY };
+    } else {
+      this.state.members[userID].prevPos = { offsetX, offsetY };
+    }
   }
   async sendPaintData() {
-    console.log(`sending draw with socket ${this.props.socket.id}`);
     this.props.socket.emit("draw", this.line, this.strokeStyle);
     this.line = [];
   }
@@ -115,37 +130,51 @@ class CanvasInSocketContext extends Component {
 
   createSocketListeners() {
     if (this.props.socket) {
-      this.props.socket.off('connect');
-      this.props.socket.on('connect', () => {
-        console.log(`Socket ${this.props.socket.id} connected`);
-        this.props.socket.emit('connected', this.props.roomName);
+      this.props.socket.off("connect");
+      this.props.socket.on("connect", () => {
+        this.props.socket.emit("connected", this.props.roomName);
       });
 
       this.props.socket.on("user_joined", userName => {
-        if(this.state.members.indexOf(userName) === -1) {
-          this.setState(prevState => ({
-            members: [...prevState.members, userName]
-          }))
+        if (this.state.members[userName] === undefined) {
+          let obj = { ...this.state.members }; //makes a copy of array. States should be treated as immutable
+          obj[userName] = {
+            username: userName,
+            prevPos: { offsetX: 0, offsetY: 0 },
+            isDrawing: false
+          };
+          this.setState({ members: obj });
         }
       });
 
       this.props.socket.on("user_left", userName => {
-        let array = [...this.state.members]; //makes a copy of array
-        const index = array.indexOf(userName);
-        if (index > -1) {
-          array.splice(index, 1);
-          this.setState({members: array});
+        let obj = { ...this.state.members }; //makes a copy of array
+        if (obj[userName] !== undefined) {
+          delete obj[userName];
+          this.setState({ members: obj });
+        }
+      });
+
+      // Immediate drawing, 'real time'
+      this.props.socket.on("imm_draw_emit", (start, stop, style, userID) => {
+        this.paint(start, stop, style, userID);
+        let obj = { ...this.state.members };
+        if (obj[userID] !== undefined) {
+          obj[userID].isDrawing = true;
+          this.setState({ members: obj });
         }
       });
 
       // Receive drawing data from other sockets
-      this.props.socket.on("line_drawn", (userID, lineData, style) => {
-        // Draws the line point by point
-        lineData.forEach(position => {
-          this.paint(position.start, position.stop, style);
-        });
+      this.props.socket.on("line_drawn", userID => {
+        let obj = { ...this.state.members };
+        if (obj[userID] !== undefined) {
+          obj[userID].isDrawing = false;
+          this.setState({ members: obj });
+        }
       });
 
+      // TODO Do we need the created and deleted emits in canvas?
       this.props.socket.on("room_created", (userID, roomName) => {
         console.log(`${userID} created room ${roomName}`);
       });
@@ -155,7 +184,7 @@ class CanvasInSocketContext extends Component {
       });
 
       this.props.socket.on("clear", userID => {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         console.log(`${userID} cleared the room.`);
       });
     }
@@ -175,7 +204,7 @@ class CanvasInSocketContext extends Component {
   }
 
   state = {
-    members: []
+    members: {}
   };
   render() {
     return (
@@ -193,9 +222,10 @@ class CanvasInSocketContext extends Component {
           onTouchEnd={this.endPaintEvent}
         />
         <div style={style.memberList}>
-          {console.log(this.state.members)}
-          {this.state.members.map(member => (
-            <div key={member}>{member}</div>
+          {Object.keys(this.state.members).map(member => (
+            <div key={this.state.members[member].username}>
+              {this.state.members[member].username}
+            </div>
           ))}
         </div>
         <div style={style.dropdownArea}>

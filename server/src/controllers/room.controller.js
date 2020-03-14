@@ -105,10 +105,17 @@ router.get('/room/:room/join', (req, res) => {
       // Update database and get data of the room
       database.joinRoom(req.tokenInfo.userID, req.params.room)
       .then((roomState) => {
+        let members = {}
+        roomState.users.forEach(user => {
+          members[user.username] = {};
+          members[user.username].username = user.username;
+          members[user.username].prevPos = { offsetX: 0, offsetY: 0 };
+          members[user.username].isDrawing = false;
+        });
         // Send room data
         res.status(200).json({
           lines: roomState.lineData,
-          users: roomState.users.map(user => user.username),
+          users: members,
           msg: `Successfully joined ${req.params.room}`,
         });
       });

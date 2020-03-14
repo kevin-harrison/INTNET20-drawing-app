@@ -35,6 +35,10 @@ exports.init = ({ io }) => {
       draw(socket.tokenInfo.userID, lineInfo, style);
     });
 
+    socket.on('immediate_paint', (roomName, start, stop, style) => {
+      sockets[socket.tokenInfo.userID].to(roomName).emit('imm_draw_emit', start, stop, style, socket.tokenInfo.userID);
+    });
+
     socket.on('clear', () => {
       clear(socket.tokenInfo.userID);
     });
@@ -116,8 +120,8 @@ exports.removeRoom = removeRoom;
 async function draw(userID, lineData, style) {
   // Add new line to database
   const userData = await database.getUser(userID)
-  // Emit new line on sockets. Doing this outside of database actions to prevent delay
-  sockets[userID].to(userData.currentRoomName).emit('line_drawn', userID, lineData, style);
+  // Emit that a line has been finished, allowing sockets to listen and set isDrawing correctly
+  sockets[userID].to(userData.currentRoomName).emit('line_drawn', userID);
   database.addLine(userData.currentRoomName, JSON.stringify(lineData), style)
   .catch((err) => {
     console.error(err.message);
